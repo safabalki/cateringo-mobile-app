@@ -1,0 +1,132 @@
+<ion-header class="ion-header-transparent">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button color="white" text="Betty's Burger" defaultHref="/restaurants/detail"></ion-back-button>
+    </ion-buttons>
+    <ion-buttons slot="primary">
+      <ion-button color="white" (click)="toggleFavorite()" *ngIf="!is_favorite">
+        <ion-icon slot="icon-only" name="heart-outline"></ion-icon>
+      </ion-button>
+      <ion-button color="primary" (click)="toggleFavorite()" *ngIf="is_favorite">
+        <ion-icon slot="icon-only" name="heart"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="image-hero-content">
+
+  <div class="image-hero image-hero-large" style="background: url(../../../../assets/img/restaurant_05.jpg)">
+    <div class="image-hero-gradient image-hero-gradient-light">
+    </div>
+    <div class="image-hero-transition"></div>
+  </div>
+
+  <div class="ion-padding image-hero-transition-after">
+
+    <h1>
+      <span>Supreme Burger</span>
+    </h1>
+    <ion-text color="medium">
+      <small>Our premium burger. The best of best.</small>
+    </ion-text>
+
+    <hr class="hr-transparent hr-medium">
+
+    <h2>Ingredients</h2>
+  </div>
+
+  <swiper class="swiper-categories ion-margin-top-small" #swiper [config]="swiper_ingredients_config">
+    <ng-template swiperSlide>
+      <ion-card class="ion-no-margin ion-no-padding">
+        <ion-card-content>
+          <span>🥩</span>
+          <h2>Beef</h2>
+        </ion-card-content>
+      </ion-card>
+    </ng-template>
+    <ng-template swiperSlide>
+      <ion-card class="ion-no-margin ion-no-padding">
+        <ion-card-content>
+          <span>🧀</span>
+          <h2>Cheese</h2>
+        </ion-card-content>
+      </ion-card>
+    </ng-template>
+    <ng-template swiperSlide>
+      <ion-card class="ion-no-margin ion-no-padding">
+        <ion-card-content>
+          <span>🧅</span>
+          <h2>Onions</h2>
+        </ion-card-content>
+      </ion-card>
+    </ng-template>
+    <ng-template swiperSlide>
+      <ion-card class="ion-no-margin ion-no-padding">
+        <ion-card-content>
+          <span>🍅</span>
+          <h2>Tomato</h2>
+        </ion-card-content>
+      </ion-card>
+    </ng-template>
+    <ng-template swiperSlide>
+      <ion-card class="ion-no-margin ion-no-padding">
+        <ion-card-content>
+          <span>🥓</span>
+          <h2>Bacon</h2>
+        </ion-card-content>
+      </ion-card>
+    </ng-template>
+  </swiper>
+
+  <div class="ion-padding">
+
+    <ion-text color="medium">
+      <p class="font-size-medium ion-margin-bottom">A true original. Try our most popular burger with delicious beef,
+        melted cheddar, onions and tomatoes. Supreme Burger or nothing.</p>
+      <small>All burgers come with french fries, barbecue and salsa dip.</small>
+    </ion-text>
+
+    <hr class="hr-xlarge">
+
+    <ion-grid class="ion-no-margin ion-no-padding nutritionals" fixed>
+      <ion-row>
+        <ion-col size="6">
+          <ion-icon name="leaf-outline"></ion-icon>
+          65g carbs
+        </ion-col>
+        <ion-col size="6">
+          <ion-icon name="pizza-outline"></ion-icon>
+          114g fats
+        </ion-col>
+        <ion-col size="6">
+          <ion-icon name="egg-outline"></ion-icon>
+          107g proteins
+        </ion-col>
+        <ion-col size="6">
+          <ion-icon name="flame-outline"></ion-icon>
+          490 Kcal
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <div class="nutritional-values">
+      <div></div>
+    </div>
+
+  </div>
+
+</ion-content>
+
+<ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp" *ngIf="content_loaded">
+  <ion-button class="ion-margin add-to-cart-button" expand="block" *ngIf="!added_to_cart" (click)="addToCart()">
+    <div>
+      <p>Add to cart</p>
+      <span>$8.99</span>
+    </div>
+  </ion-button>
+  <ion-button class="ion-margin" disabled color="medium" expand="block" *ngIf="added_to_cart">
+    <ion-icon slot="start" name="checkmark"></ion-icon>
+    Added to cart
+  </ion-button>
+</ion-footer>

@@ -1,0 +1,54 @@
+<ion-header collapse="fade" [translucent]="true" class="custom-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+    </ion-buttons>
+    <ion-title>
+      <p>Siparişlerim</p>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="ion-padding">
+    
+    <div *ngIf="!content_loaded">
+      <ion-list>
+        <ion-item *ngFor="let i of [1,2,3,4,5]">
+          <ion-thumbnail slot="start">
+            <ion-skeleton-text animated></ion-skeleton-text>
+          </ion-thumbnail>
+          <ion-label>
+            <h3><ion-skeleton-text animated style="width: 50%"></ion-skeleton-text></h3>
+            <p><ion-skeleton-text animated style="width: 80%"></ion-skeleton-text></p>
+            <p><ion-skeleton-text animated style="width: 30%"></ion-skeleton-text></p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </div>
+
+    <div *ngIf="content_loaded && orders.length === 0" class="ion-text-center ion-margin-top">
+      <ion-icon name="receipt-outline" style="font-size: 64px; color: #ccc;"></ion-icon>
+      <p>Henüz bir siparişiniz bulunmuyor.</p>
+    </div>
+
+    <ion-list class="item-card-list" lines="none" *ngIf="content_loaded && orders.length > 0">
+      <ion-item *ngFor="let order of orders" button detail="false" class="ion-margin-bottom card-item">
+        <ion-label>
+          <div class="order-header">
+            <span class="order-code">#{{ order.siparis_kodu }}</span>
+            <ion-badge [color]="getStatusColor(order.siparis_durumu)">{{ order.siparis_durumu === 'bayide' ? 'Sipariş Alındı' : order.siparis_durumu }}</ion-badge>
+          </div>
+          <div class="order-body ion-margin-top">
+            <h3 class="font-weight-600">{{ order.kategori_baslik }}</h3>
+            <p>{{ order.created_at | date:'dd.MM.yyyy HH:mm' }}</p>
+            <div class="order-footer ion-margin-top ion-flex ion-justify-content-between ion-align-items-center">
+              <span class="total-price font-weight-700">{{ order.toplam_tutar }} TL</span>
+              <ion-button fill="clear" size="small" [routerLink]="['/secure/order-detail', order.id]">Detay</ion-button>
+            </div>
+          </div>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+
+  </div>
+</ion-content>

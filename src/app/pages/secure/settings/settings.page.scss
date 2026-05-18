@@ -1,0 +1,26 @@
+
+.header-logo {
+    height: 32px;
+    max-width: 120px;
+    object-fit: contain;
+}
+
+.language-flag {
+    height: 20px;
+    border-radius: 4px;
+}
+
+.hero {
+    padding: 32px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    
+    ion-avatar {
+        width: 80px;
+        height: 80px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+}

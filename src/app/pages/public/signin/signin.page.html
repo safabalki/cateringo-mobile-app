@@ -1,0 +1,65 @@
+<ion-header>
+  <ion-toolbar class="ion-no-border">
+    <ion-buttons slot="end">
+      <ion-button color="primary" routerLink="/signup">
+        Kaydol
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <div class="ion-padding ion-full-height ion-flex ion-flex-center">
+
+    <div class="logo-container">
+      <img [src]="uploadUrl + (settings?.firmaLogo || 'logo.jpg')" class="app-logo">
+      <p>Hesabınıza giriş yapın.</p>
+    </div>
+
+    <form class="form-default" [formGroup]="signin_form" (submit)="signIn()">
+
+      <ion-list class="item-card-list form-list-borders" lines="none">
+        <ion-item>
+          <ion-label color="medium" position="stacked">Email</ion-label>
+          <ion-input formControlName="email" type="email" autocomplete="off" placeholder="E-posta adresiniz">
+          </ion-input>
+        </ion-item>
+
+        <ion-item class="ion-margin-top-small">
+          <ion-label color="medium" position="stacked">Şifre</ion-label>
+          <ion-input formControlName="password" type="password" placeholder="Şifreniz"></ion-input>
+        </ion-item>
+      </ion-list>
+
+      <ion-button class="ion-margin-top" type="submit" expand="block" color="primary">
+        Giriş Yap
+      </ion-button>
+
+      <ion-button color="primary" fill="clear" expand="block" class="ion-button-small ion-margin-top-medium"
+        routerLink="/password-reset">
+        Şifremi unuttum?
+      </ion-button>
+
+      <div class="text-divider">
+        <ion-text color="medium">
+          veya
+        </ion-text>
+        <span></span>
+      </div>
+
+      <ion-button class="ion-margin-top" type="button" expand="block" color="medium" fill="outline">
+        <ion-icon slot="start" name="logo-google"></ion-icon>
+        Google ile giriş yap
+      </ion-button>
+    </form>
+
+    <div class="ion-text-center ion-margin-top">
+      <ion-text color="medium">
+        <small>&copy; {{current_year}} {{ settings?.firmaAdi || 'Cateringo' }}</small>
+      </ion-text>
+    </div>
+
+  </div>
+
+</ion-content>

@@ -1,0 +1,66 @@
+.profile-avatar-wrapper {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto;
+  
+  .edit-badge {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: var(--ion-color-primary);
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    ion-icon { font-size: 1.1rem; }
+  }
+}
+
+.section-card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+  border: 1px solid #f1f3f5;
+  margin-top: 10px;
+}
+
+.form-list {
+  background: transparent;
+  
+  .form-item {
+    --background: #f8f9fa;
+    --border-radius: 14px;
+    --padding-start: 16px;
+    margin-bottom: 16px;
+    
+    ion-label {
+      font-size: 0.75rem !important;
+      font-weight: 700 !important;
+      color: #888 !important;
+      margin-bottom: 8px !important;
+      transform: none !important;
+    }
+    
+    ion-input {
+      font-weight: 600;
+      color: #1a1a1a;
+      --padding-top: 10px;
+      --padding-bottom: 10px;
+    }
+  }
+}
+
+.btn-next {
+  --border-radius: 16px;
+  height: 52px;
+  font-weight: 800;
+  --box-shadow: 0 6px 20px rgba(var(--ion-color-primary-rgb), 0.3);
+  margin-top: 24px;
+}

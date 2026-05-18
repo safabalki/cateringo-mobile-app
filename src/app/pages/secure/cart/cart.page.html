@@ -1,0 +1,89 @@
+<ng-container *ngIf="order_placed">
+
+  <ion-content [fullscreen]="true" class="cart">
+
+    <div class="ion-padding order-placed ion-full-center">
+      <div>
+        <ion-icon name="checkmark-outline" color="success"></ion-icon>
+        <h2>
+          <span>Siparişiniz başarıyla oluşturuldu!</span>
+        </h2>
+        <ion-text color="medium">
+          <p class="ion-margin-top">Sipariş onayınız e-posta adresinize gönderilecektir. Siparişinizi <strong>#{{ orderCode }}</strong> numarası ile takip edebilirsiniz.</p>
+        </ion-text>
+      </div>
+    </div>
+
+  </ion-content>
+
+  <ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp">
+    <ion-button class="ion-margin" expand="block" routerLink="/secure/home">
+      Anasayfaya Dön
+    </ion-button>
+  </ion-footer>
+</ng-container>
+
+<ng-container *ngIf="!order_placed">
+  <ion-header collapse="fade" [translucent]="true" class="custom-header">
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-back-button color="secondary" text="Geri"></ion-back-button>
+      </ion-buttons>
+      <ion-title>
+        <p>Sepetim</p>
+      </ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content [fullscreen]="true" class="cart">
+
+    <div class="items" *ngIf="cartItems.length > 0">
+      <h2>
+        <span>Lütfen siparişinizi onaylamadan önce kontrol ediniz.</span>
+      </h2>
+
+      <ion-list class="item-card-list item-card-list-dishes ion-margin-top-large" lines="none">
+        <ion-item *ngFor="let item of cartItems">
+          <ion-avatar slot="start">
+            <img [src]="'https://cateringo.net/beta/public/images/' + item.resim">
+          </ion-avatar>
+          <ion-label>
+            <h3>{{ item.urun_adi }}</h3>
+            <p class="info">
+              <span>{{ item.miktar }} adet</span>
+              <span class="price">{{ item.fiyat }} TL</span>
+            </p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+
+      <div class="totals">
+        <div>
+          <p>Toplam</p>
+          <span>{{ total | number:'1.2-2' }} TL</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="ion-padding ion-text-center ion-margin-top" *ngIf="cartItems.length === 0">
+      <ion-icon name="cart-outline" style="font-size: 64px; color: #ccc;"></ion-icon>
+      <p>Sepetiniz şu an boş.</p>
+      <ion-button fill="clear" routerLink="/secure/home">Alışverişe Başla</ion-button>
+    </div>
+
+  </ion-content>
+
+  <ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp" *ngIf="cartItems.length > 0">
+    <ion-button class="ion-margin add-to-cart-button" expand="block" *ngIf="!buy_clicked" (click)="buy()">
+      <div>
+        <p>Siparişi Tamamla</p>
+        <span>{{ total | number:'1.2-2' }} TL</span>
+      </div>
+    </ion-button>
+    <ion-button class="ion-margin" disabled color="medium" expand="block" *ngIf="buy_clicked">
+      <ion-icon slot="start" name="hourglass-outline"></ion-icon>
+      İşleniyor...
+    </ion-button>
+  </ion-footer>
+</ng-container>

@@ -1,0 +1,121 @@
+<ion-header collapse="fade" [translucent]="true" class="custom-header">
+  <ion-toolbar>
+    <ion-buttons slot="secondary">
+      <ion-button color="secondary">
+        <ion-icon slot="icon-only" name="filter-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>
+      <p>Your favorite Food</p>
+    </ion-title>
+    <ion-buttons slot="primary">
+      <ion-button color="secondary">
+        <ion-icon slot="icon-only" name="search-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <div class="ion-padding">
+    <ion-segment class="segment-medium" scrollable value="top">
+      <ion-segment-button value="top">
+        <p><span class="emoji">🍱</span>Food</p>
+      </ion-segment-button>
+      <ion-segment-button value="burger">
+        <p><span class="emoji">🏬</span>Restaurants</p>
+      </ion-segment-button>
+    </ion-segment>
+  </div>
+
+  <div class="ion-padding-horizontal ion-margin-bottom-large">
+    <ion-list class="item-card-list item-card-list-dishes" lines="none">
+      <ion-item>
+        <ion-avatar slot="start">
+          <img src="../../../../../assets/img/b-1.jpg">
+        </ion-avatar>
+        <ion-label>
+          <h3>Supreme Burger</h3>
+          <p>by Betty's Burger</p>
+          <ion-text color="primary" class="ion-block ion-margin-top-medium font-size-small font-weight-500">
+            from $9.79
+          </ion-text>
+        </ion-label>
+        <ion-button class="ion-button-small" slot="end">
+          Order now
+        </ion-button>
+      </ion-item>
+      <ion-item>
+        <ion-avatar slot="start">
+          <img src="../../../../../assets/img/b-4.jpg">
+        </ion-avatar>
+        <ion-label>
+          <h3>Bacon King</h3>
+          <p>by Betty's Burger</p>
+          <ion-text color="primary" class="ion-block ion-margin-top-medium font-size-small font-weight-500">
+            from $6.49
+          </ion-text>
+        </ion-label>
+        <ion-button class="ion-button-small" slot="end">
+          Order now
+        </ion-button>
+      </ion-item>
+      <ion-item>
+        <ion-avatar slot="start">
+          <img src="../../../../../assets/img/s-1.jpg">
+        </ion-avatar>
+        <ion-label>
+          <h3>Super Beef Ramen</h3>
+          <p>by Soup Hevaen</p>
+          <ion-text color="medium" class="ion-block ion-margin-top-medium font-size-small font-weight-500">
+            Currently not available
+          </ion-text>
+        </ion-label>
+        <ion-button disabled color="medium" class="ion-button-small" slot="end">
+          Order now
+        </ion-button>
+      </ion-item>
+      <ion-item>
+        <ion-avatar slot="start">
+          <img src="../../../../../assets/img/s-2.jpg">
+        </ion-avatar>
+        <ion-label>
+          <h3>Best of Spring Salad</h3>
+          <p>by The Green House</p>
+          <ion-text color="primary" class="ion-block ion-margin-top-medium font-size-small font-weight-500">
+            from $11.19
+          </ion-text>
+        </ion-label>
+        <ion-button class="ion-button-small" slot="end">
+          Order now
+        </ion-button>
+      </ion-item>
+    </ion-list>
+  </div>
+
+  <div class="ion-block text-divider ion-padding-horizontal ion-margin-vertical">
+    <span></span>
+  </div>
+
+  <div class="ion-padding-horizontal ion-margin-bottom-medium">
+    <ion-list class="item-card-list item-card-list-dishes item-card-list-medium" lines="none">
+      <ion-item>
+        <ion-label>
+          <h3>Not sure what to eat?</h3>
+          <p>Find delicious food based on your past orders.</p>
+        </ion-label>
+        <ion-button color="white" class="ion-button-small" slot="end">
+          Surprise me
+        </ion-button>
+      </ion-item>
+    </ion-list>
+  </div>
+
+</ion-content>
+
+<ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp">
+  <ion-button class="ion-margin" expand="block">
+    Explore more food & restaurants
+  </ion-button>
+</ion-footer>

@@ -1,0 +1,109 @@
+<ion-header [translucent]="true" class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/secure/profile" text="Geri" color="light"></ion-back-button>
+    </ion-buttons>
+    <ion-title style="color: white; font-weight: 700;">Adreslerim</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openAddModal()" color="light">
+        <ion-icon name="add-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding gray-bg">
+  
+  <div *ngIf="content_loaded">
+    <div *ngIf="addresses.length === 0" class="empty-state ion-text-center animate__animated animate__fadeIn">
+      <div class="empty-icon-box">
+        <ion-icon name="location-outline"></ion-icon>
+      </div>
+      <h3>Henüz adres eklemediniz</h3>
+      <p>Siparişlerinizi daha hızlı verebilmek için adreslerinizi kaydedin.</p>
+      <ion-button (click)="openAddModal()" expand="block" mode="ios" class="ion-margin-top btn-prominent">
+        Yeni Adres Ekle
+      </ion-button>
+    </div>
+
+    <ion-list lines="none" class="address-list">
+      <ion-item-sliding *ngFor="let addr of addresses" class="address-sliding-item animate__animated animate__fadeInUp">
+        <ion-item class="address-card">
+          <div class="address-icon-box" slot="start">
+            <ion-icon [name]="addr.adres_baslik.toLowerCase().includes('ev') ? 'home-outline' : (addr.adres_baslik.toLowerCase().includes('iş') ? 'business-outline' : 'location-outline')"></ion-icon>
+          </div>
+          <ion-label>
+            <h2 class="address-title">{{ addr.adres_baslik }}</h2>
+            <p class="address-summary">{{ addr.il_adi }} / {{ addr.ilce_adi }}</p>
+            <p class="address-fulltext">{{ addr.adres }}</p>
+          </ion-label>
+          <ion-button slot="end" fill="clear" (click)="editAddress(addr)" color="medium">
+            <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </ion-item>
+
+        <ion-item-options side="end">
+          <ion-item-option color="danger" (click)="deleteAddress(addr)">
+            <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+          </ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+    </ion-list>
+  </div>
+
+  <div *ngIf="!content_loaded" class="ion-padding-top ion-text-center">
+    <ion-spinner color="primary"></ion-spinner>
+    <p class="ion-margin-top">Adresler yükleniyor...</p>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <ion-modal [isOpen]="isModalOpen" (didDismiss)="closeModal()" class="address-modal">
+    <ng-template>
+      <ion-header class="ion-no-border">
+        <ion-toolbar>
+          <ion-title>{{ editingAddress ? 'Adresi Düzenle' : 'Yeni Adres Ekle' }}</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeModal()">Kapat</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <div class="form-card">
+            <ion-item class="form-item" lines="none">
+              <ion-label position="stacked">Adres Başlığı (Örn: Evim, İş Yerim)</ion-label>
+              <ion-input [(ngModel)]="newAddress.adres_baslik" placeholder="Başlık giriniz"></ion-input>
+            </ion-item>
+
+            <div class="row">
+               <div class="col-6">
+                  <ion-item class="form-item" lines="none">
+                    <ion-label position="stacked">İl</ion-label>
+                    <ion-select [(ngModel)]="newAddress.il_id" placeholder="İl seçin" (ionChange)="onCityChange($event.detail.value)" interface="action-sheet">
+                      <ion-select-option *ngFor="let city of cities" [value]="city.id">{{ city.il_adi }}</ion-select-option>
+                    </ion-select>
+                  </ion-item>
+               </div>
+               <div class="col-6">
+                  <ion-item class="form-item" lines="none">
+                    <ion-label position="stacked">İlçe</ion-label>
+                    <ion-select [(ngModel)]="newAddress.ilce_id" placeholder="İlçe seçin" [disabled]="!newAddress.il_id" interface="action-sheet">
+                      <ion-select-option *ngFor="let dist of districts" [value]="dist.id">{{ dist.ilce_adi }}</ion-select-option>
+                    </ion-select>
+                  </ion-item>
+               </div>
+            </div>
+
+            <ion-item class="form-item ion-margin-top" lines="none">
+              <ion-label position="stacked">Tam Adres</ion-label>
+              <ion-textarea rows="3" [(ngModel)]="newAddress.adres" placeholder="Cadde, sokak, mahalle..."></ion-textarea>
+            </ion-item>
+
+            <ion-button expand="block" mode="ios" (click)="saveAddress()" class="btn-prominent ion-margin-top">
+              {{ editingAddress ? 'GÜNCELLE' : 'KAYDET' }}
+            </ion-button>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+</ion-content>

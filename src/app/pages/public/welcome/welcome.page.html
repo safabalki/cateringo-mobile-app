@@ -1,0 +1,29 @@
+<ion-content>
+  <swiper class="swiper-welcome" #swiper [config]="config" (slideChange)="swiperSlideChanged($event)"
+    (reachEnd)="onLastSlide()">
+    <ng-template swiperSlide>
+      <img [src]="uploadUrl + (settings?.firmaLogo || 'logo.jpg')" class="animate__animated animate__fadeInDown" style="max-height: 150px; object-fit: contain;">
+      <h3 class="animate__animated animate__fadeInUp">{{ settings?.firmaAdi }}<br>{{ settings?.firmaSlogan }}</h3>
+      <div class="animate__animated animate__fadeInUp ion-padding" [innerHTML]="settings?.firmaGenelBilgi"></div>
+    </ng-template>
+    <ng-template swiperSlide>
+      <img src="../../../../assets/img/illu-2.png">
+      <h3>Kolayca Sipariş Verin.</h3>
+      <p>Dilediğiniz kategoriden ürünlerinizi seçin, adresinizi belirleyin ve hızlıca siparişinizi oluşturun.</p>
+    </ng-template>
+    <ng-template swiperSlide>
+      <img src="../../../../assets/img/illu-3.png">
+      <h3>Sipariş Takibi.</h3>
+      <p>Siparişlerinizin durumunu anlık olarak takip edin, geçmiş siparişlerinize kolayca ulaşın.</p>
+    </ng-template>
+  </swiper>
+</ion-content>
+
+<ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp">
+  <ion-button class="ion-margin" expand="block" (click)="nextSlide()" *ngIf="!last_slide">
+    İleri
+  </ion-button>
+  <ion-button class="ion-margin" expand="block" (click)="getStarted()" *ngIf="last_slide">
+    Kullanmaya Başla
+  </ion-button>
+</ion-footer>

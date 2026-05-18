@@ -1,0 +1,71 @@
+<ion-header class="ion-header-transparent">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button color="white" text="Geri" defaultHref="/secure/home"></ion-back-button>
+    </ion-buttons>
+    <ion-buttons slot="primary">
+      <ion-button color="white" routerLink="/cart">
+        <ion-icon slot="icon-only" name="cart-outline"></ion-icon>
+        <ion-badge color="primary" mode="ios">{{ cartCount }}</ion-badge>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="image-hero-content">
+
+  <div class="image-hero" [style.background]="'url(' + uploadUrl + 'catering_urunler/' + (products[0]?.resim || '') + ')'" style="background-size: cover; background-position: center;">
+    <div class="image-hero-gradient image-hero-gradient-intense">
+      <div>
+        <p>Cateringo Lezzetleri</p>
+        <div class="star-rating">
+          <div>
+            <ion-icon name="star"></ion-icon>
+            <ion-icon name="star"></ion-icon>
+            <ion-icon name="star"></ion-icon>
+            <ion-icon name="star"></ion-icon>
+            <ion-icon name="star"></ion-icon>
+          </div>
+          <span>En Çok Tercih Edilenler</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ion-padding container-rounded-top">
+    <ion-segment class="segment-small" scrollable value="all">
+      <ion-segment-button value="all">
+        <p>Tümü</p>
+      </ion-segment-button>
+    </ion-segment>
+
+    <hr class="hr-transparent hr-small">
+
+    <ion-list class="item-card-list item-card-list-dishes" lines="none">
+      <ion-item button detail *ngFor="let product of products" (click)="addToCart(product)">
+        <ion-avatar slot="start">
+          <img [src]="uploadUrl + 'catering_urunler/' + product.resim">
+        </ion-avatar>
+        <ion-label>
+          <h3>{{product.urun_adi}}</h3>
+          <p>{{product.aciklama || 'Harika bir lezzet deneyimi.'}}</p>
+          <div class="ion-flex ion-align-items-center ion-space-between">
+            <p class="ingredients">
+              <span>🥘</span>
+              <span>🍲</span>
+            </p>
+            <p class="info">
+              <span class="price">{{product.fiyat}} TL</span>
+            </p>
+          </div>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+
+    <ion-text color="medium" *ngIf="products.length === 0">
+      <small>Bu kategoride henüz ürün bulunmuyor.</small>
+    </ion-text>
+
+  </div>
+
+</ion-content>

@@ -1,0 +1,109 @@
+<ion-header collapse="fade" [translucent]="true" class="custom-header ion-no-border">
+  <ion-toolbar>
+    <div slot="start" class="ion-padding-start flex-center">
+      <img *ngIf="settings?.firmaLogo" [src]="uploadUrl + settings.firmaLogo" style="height: 32px; border-radius: 6px;" onerror="this.src='../../../assets/img/logo.jpg'">
+      <img *ngIf="!settings?.firmaLogo" src="../../../assets/img/logo.jpg" style="height: 32px; border-radius: 6px;">
+    </div>
+    <div slot="secondary" class="slot-left">
+      <div class="toolbar-location-dropdown">
+        <span class="brand-text">{{ settings?.firmaAdi || 'Cateringo' }}</span>
+      </div>
+    </div>
+    <ion-buttons slot="primary">
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <div class="hero-section ion-padding-horizontal ion-padding-top">
+    <h1 class="hero-title animate__animated animate__fadeIn">
+      Her Şey Dahil,<br>
+      <span>Toplu Yemek!</span>
+    </h1>
+    <p class="hero-subtitle">Profesyonel catering yanınızda.</p>
+  </div>
+
+  <!-- Prominent Category Grid -->
+  <div class="ion-padding-horizontal ion-margin-top">
+    <div class="section-header">
+      <h2>Hizmet Kategorileri</h2>
+    </div>
+    
+    <ion-grid class="ion-no-padding ion-margin-top-small category-grid">
+      <ion-row>
+        <ion-col size="6" *ngFor="let category of categories">
+          <ion-card class="grid-category-card" [routerLink]="['/secure/order-wizard', category.id]">
+            <div class="icon-box" [style.background-color]="getCategoryColor(category.baslik)">
+              <span class="emoji">{{ getCategoryIcon(category.baslik) }}</span>
+            </div>
+            <ion-card-content>
+              <h3>{{ category.baslik }}</h3>
+              <p>Paketleri Gör</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <div class="ion-padding-horizontal ion-margin-top-large">
+    <div class="section-header">
+      <h2>Öne Çıkan Menü Paketleri</h2>
+      <p>Özel günleriniz için en popüler seçimler</p>
+    </div>
+  </div>
+
+  <!-- Detailed Product Cards (Explore Style) -->
+  <div class="ion-padding-horizontal ion-margin-top-small">
+    <ion-card class="explore-product-card ion-no-margin ion-margin-bottom" *ngFor="let product of products | slice:0:10" [routerLink]="['/secure/order-wizard', product.kategori_id]">
+      <div class="card-image-box">
+        <img [src]="uploadUrl + 'catering_urunler/' + product.resim" onerror="this.src='https://placehold.co/400x200?text=Cateringo+Menü'">
+        <div class="card-badge">
+          <ion-icon name="star"></ion-icon> Popüler Seçim
+        </div>
+        <div class="card-price-overlay">{{ product.fiyat }} TL / Kişi</div>
+      </div>
+      <ion-card-content>
+        <div class="card-title-row">
+          <h3>{{ product.urun_adi }}</h3>
+          <ion-icon name="arrow-forward-circle-outline" color="primary"></ion-icon>
+        </div>
+        <p class="card-description">Tam kapsamlı menü, servis ekipmanları ve profesyonel personel hizmeti dahildir.</p>
+        <div class="card-meta">
+           <ion-chip color="secondary" outline="true">
+             <ion-icon name="people-outline"></ion-icon>
+             <ion-label>Min 50 Kişi</ion-label>
+           </ion-chip>
+           <ion-chip color="success" outline="true">
+             <ion-icon name="checkmark-done-circle-outline"></ion-icon>
+             <ion-label>Onaylı Lezzet</ion-label>
+           </ion-chip>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <div class="info-card-container ion-padding">
+     <ion-card class="how-it-works-card">
+       <ion-card-header>
+         <ion-card-title>Nasıl Sipariş Verilir? 📋</ion-card-title>
+       </ion-card-header>
+       <ion-card-content>
+         <div class="step-mini">
+           <span class="step-num">1</span>
+           <p>Etkinlik türünü ve menüyü seçin.</p>
+         </div>
+         <div class="step-mini">
+           <span class="step-num">2</span>
+           <p>Kişi sayısı ve teslimat bilgilerini girin.</p>
+         </div>
+         <div class="step-mini">
+           <span class="step-num">3</span>
+           <p>Ödemenizi yapın, biz kapınıza getirelim!</p>
+         </div>
+       </ion-card-content>
+     </ion-card>
+  </div>
+
+</ion-content>

@@ -1,0 +1,90 @@
+<ion-header collapse="fade" [translucent]="true" class="custom-header ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button color="primary" text="Geri" defaultHref="/secure/tabs/orders"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      <p style="font-weight: 700; color: #1a1a1a;">Sipariş Detayı</p>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="ion-padding" *ngIf="content_loaded && order">
+    
+    <div class="summary-top ion-text-center animate__animated animate__fadeIn">
+      <div class="badge-status-big" [style.background-color]="'var(--ion-color-' + getStatusColor(order.order?.siparis_durumu) + ')'">
+        {{ (order.order?.siparis_durumu === 'bayide' ? 'Sipariş Alındı' : order.order?.siparis_durumu) | uppercase }}
+      </div>
+      <h2 class="ion-margin-top" style="font-weight: 800; color: #1a1a1a;">Sipariş #{{ order.order?.siparis_kodu }}</h2>
+      <p style="color: #666; font-size: 0.85rem;">{{ order.order?.created_at | date:'dd.MM.yyyy HH:mm' }}</p>
+    </div>
+
+    <div class="section-card ion-margin-top animate__animated animate__fadeInUp">
+      <h3 class="section-title">Sipariş İçeriği</h3>
+      <ion-list lines="none" class="product-list">
+        <ion-item *ngFor="let item of order.details" class="product-item-mini">
+          <ion-icon name="radio-button-on-outline" slot="start" color="primary" style="font-size: 14px; margin-right: 12px;"></ion-icon>
+          <ion-label>
+            <h4 style="font-weight: 700; margin: 0; color: #333;">{{ item.alan_adi }}</h4>
+            <p style="font-size: 0.9rem; color: #666; margin-top: 2px;">
+              {{ item.deger }} 
+              <span *ngIf="item.fiyat_degeri > 0 && item.fiyat_etkisi !== 'urun' && item.fiyat_etkisi !== 'teslimat' && !item.deger.includes('TL')" style="color: var(--ion-color-success); font-weight: 700;">
+                (+{{ item.fiyat_degeri }} TL)
+              </span>
+            </p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+      <div class="total-box-highlight ion-margin-top">
+        <span>TOPLAM TUTAR</span>
+        <span class="main-price">{{ order.order?.toplam_tutar }} TL</span>
+      </div>
+    </div>
+
+    <div class="section-card ion-margin-top animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+      <h3 class="section-title">Teslimat & İletişim</h3>
+      
+      <div class="info-row">
+        <div class="icon-circle">
+          <ion-icon name="location-outline"></ion-icon>
+        </div>
+        <div class="info-content">
+          <p class="lbl">TESLİMAT ADRESİ</p>
+          <p class="val">{{ order.order?.teslimat_adresi }}</p>
+        </div>
+      </div>
+
+      <div class="info-row ion-margin-top">
+        <div class="icon-circle">
+          <ion-icon name="person-outline"></ion-icon>
+        </div>
+        <div class="info-content">
+          <p class="lbl">MÜŞTERİ BİLGİSİ</p>
+          <p class="val">{{ order.order?.musteri_ad_soyad }}</p>
+          <p class="val tel">{{ order.order?.musteri_tel }}</p>
+        </div>
+      </div>
+      
+      <div class="info-row ion-margin-top">
+        <div class="icon-circle">
+          <ion-icon name="card-outline"></ion-icon>
+        </div>
+        <div class="info-content">
+          <p class="lbl">ÖDEME & DURUM</p>
+          <p class="val">{{ order.order?.odeme_yontemi === 'havale' ? 'Havale / EFT' : 'Kredi Kartı' }}</p>
+          <p class="val" [style.color]="order.order?.odeme_durumu == 1 ? '#2dd36f' : '#eb445a'" style="font-weight: 700;">
+            {{ order.order?.odeme_durumu == 1 ? 'Ödendi' : 'Ödeme Bekleniyor' }}
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div *ngIf="!content_loaded" class="ion-padding">
+    <ion-skeleton-text animated style="width: 100%; height: 200px; border-radius: 20px;"></ion-skeleton-text>
+    <ion-skeleton-text animated style="width: 100%; height: 150px; border-radius: 20px; margin-top: 20px;"></ion-skeleton-text>
+  </div>
+</ion-content>

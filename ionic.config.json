@@ -1,0 +1,7 @@
+{
+  "name": "Cateringo",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

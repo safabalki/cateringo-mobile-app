@@ -1,0 +1,77 @@
+<ion-header>
+  <ion-toolbar class="ion-no-border">
+    <ion-buttons slot="start">
+      <ion-back-button text="Giriş Yap" defaultHref="/signin"></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <div class="ion-padding ion-full-height ion-flex ion-flex-center">
+
+    <div class="logo-container">
+      <img [src]="uploadUrl + (settings?.firmaLogo || 'logo.jpg')" class="app-logo">
+      <p>Yeni bir hesap oluşturun.</p>
+    </div>
+
+    <form class="form-default" [formGroup]="signup_form" (submit)="signUp()">
+
+      <ion-list class="item-card-list form-list-borders" lines="none">
+
+        <ion-item>
+          <ion-label color="medium" position="stacked">Ad Soyad</ion-label>
+          <ion-input formControlName="ad_soyad" type="text" placeholder="Adınız ve Soyadınız"></ion-input>
+        </ion-item>
+
+        <ion-item class="ion-margin-top-small">
+          <ion-label color="medium" position="stacked">E-posta</ion-label>
+          <ion-input formControlName="email" type="email" autocomplete="off"
+            placeholder="E-posta adresiniz"></ion-input>
+        </ion-item>
+
+        <ion-item class="ion-margin-top-small">
+          <ion-label color="medium" position="stacked">Telefon</ion-label>
+          <ion-input formControlName="telefon" type="tel" placeholder="Telefon numaranız"></ion-input>
+        </ion-item>
+
+        <ion-item class="ion-margin-top-small">
+          <ion-label color="medium" position="stacked">Şifre</ion-label>
+          <ion-input formControlName="password" type="password" placeholder="Şifreniz"></ion-input>
+        </ion-item>
+
+        <ion-item class="ion-margin-top-small">
+          <ion-label color="medium" position="stacked">Şifre Tekrar</ion-label>
+          <ion-input formControlName="password_repeat" type="password" placeholder="Şifreniz tekrar"></ion-input>
+        </ion-item>
+
+      </ion-list>
+
+      <ion-button class="ion-margin-top" type="submit" expand="block" color="primary">
+        Ücretsiz Kaydol
+      </ion-button>
+
+      <div class="text-divider">
+        <ion-text color="medium">
+          veya
+        </ion-text>
+        <span></span>
+      </div>
+
+
+
+      <ion-button class="ion-margin-top"  type="submit" expand="block" color="medium" fill="outline">
+        <ion-icon slot="start" name="logo-google"></ion-icon>
+        Google ile kaydol
+      </ion-button>
+    </form>
+
+    <div class="ion-text-center ion-margin-top">
+      <ion-text color="medium">
+        <small>&copy; {{current_year}} {{ settings?.firmaAdi || 'Cateringo' }}</small>
+      </ion-text>
+    </div>
+
+  </div>
+
+</ion-content>

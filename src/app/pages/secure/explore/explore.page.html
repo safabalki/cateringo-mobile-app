@@ -1,0 +1,258 @@
+<ion-header collapse="fade" [translucent]="true" class="custom-header">
+  <ion-toolbar>
+    <ion-buttons slot="secondary">
+      <ion-button color="secondary" (click)="openFilter()">
+        <ion-icon slot="icon-only" name="filter-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>
+      <p>Restaurants nearby</p>
+      <span>34th St, New York City</span>
+    </ion-title>
+    <ion-buttons slot="primary">
+      <ion-button color="secondary">
+        <ion-icon slot="icon-only" name="search-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <div class="ion-padding">
+    <ion-segment class="segment-medium" scrollable value="top">
+      <ion-segment-button value="top">
+        <p><span class="emoji">🏆</span>Top</p>
+      </ion-segment-button>
+      <ion-segment-button value="burger">
+        <p><span class="emoji">🍔</span>Burger</p>
+      </ion-segment-button>
+      <ion-segment-button value="pizza">
+        <p><span class="emoji">🍕</span>Pizza</p>
+      </ion-segment-button>
+      <ion-segment-button value="salad">
+        <p><span class="emoji">🥗</span>Salad</p>
+      </ion-segment-button>
+      <ion-segment-button value="curry">
+        <p><span class="emoji">🍛</span>Curry</p>
+      </ion-segment-button>
+      <ion-segment-button value="vegan">
+        <p><span class="emoji">🌿</span>Vegan</p>
+      </ion-segment-button>
+      <ion-segment-button value="sushi">
+        <p><span class="emoji">🍣</span>Sushi</p>
+      </ion-segment-button>
+    </ion-segment>
+  </div>
+
+  <div class="ion-padding-horizontal ion-margin-bottom-medium">
+
+    <!-- Skeletons -->
+    <ng-container *ngIf="!content_loaded">
+      <ion-card class="ion-no-margin ion-margin-bottom-large custom-card animate__animated animate__fadeIn" *ngFor="let i of [].constructor(3);">
+        <div class="card-img-badge card-img-badge-white">
+          <p>
+            <ion-skeleton-text animated style="width: 100px"></ion-skeleton-text>
+          </p>
+        </div>
+        <div class="card-img-header">
+          <ion-skeleton-text animated style="width: 100%"></ion-skeleton-text>
+        </div>
+        <ion-card-content>
+          <div class="custom-card-content-title">
+            <p><ion-skeleton-text animated style="width: 100px"></ion-skeleton-text></p>
+            <div class="custom-card-content-rating">
+              <ion-badge class="custom-badge ion-no-padding" color="white">
+                <ion-skeleton-text animated style="width: 100px"></ion-skeleton-text>
+              </ion-badge>
+            </div>
+          </div>
+          <span class="custom-card-content-description"><ion-skeleton-text animated style="width: 160px"></ion-skeleton-text></span>
+          <div class="list-chips list-chips-smallest">
+            <ion-skeleton-text animated style="width: 190px"></ion-skeleton-text>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </ng-container>
+
+    <ng-container *ngIf="content_loaded">
+      <ion-card class="ion-no-margin ion-margin-bottom-large custom-card animate__animated animate__fadeIn" routerLink="/restaurants/detail">
+        <div class="card-img-badge card-img-badge-white">
+          <p>
+            <ion-icon name="trophy-outline"></ion-icon>Top 10 Restaurant
+          </p>
+        </div>
+        <div class="card-img-header" style="background: url(../../../../assets/img/restaurant_04.jpg)"></div>
+        <ion-card-content>
+          <div class="custom-card-content-title">
+            <p>Kebap's Best</p>
+            <div class="custom-card-content-rating">
+              <ion-badge class="custom-badge ion-no-padding" color="white">
+                <ion-icon class="ion-margin-right-small" color="secondary" name="star"></ion-icon>
+                <ion-label color="secondary">4.8</ion-label>
+              </ion-badge>
+            </div>
+          </div>
+          <span class="custom-card-content-description">Kebap · Fallafel · Fingerfood</span>
+          <div class="list-chips list-chips-smallest">
+            <ion-chip color="secondary">
+              <ion-icon name="hourglass"></ion-icon>
+              <ion-label>30 min</ion-label>
+            </ion-chip>
+            <ion-chip color="success">
+              <ion-icon name="bicycle"></ion-icon>
+              <ion-label>Free delivery</ion-label>
+            </ion-chip>
+            <ion-chip color="secondary">
+              <ion-icon name="cash"></ion-icon>
+              <ion-label>min. $12</ion-label>
+            </ion-chip>
+          </div>
+        </ion-card-content>
+      </ion-card>
+      <ion-card class="ion-no-margin ion-margin-bottom-large custom-card animate__animated animate__fadeIn" routerLink="/restaurants/detail">
+        <div class="card-img-badge card-img-badge-white">
+          <p>
+            <ion-icon name="trophy-outline"></ion-icon>Top 3 Restaurant
+          </p>
+        </div>
+        <div class="card-img-header" style="background: url(../../../../assets/img/restaurant_05.jpg)"></div>
+        <ion-card-content>
+          <div class="custom-card-content-title">
+            <p>Betty's Burger</p>
+            <div class="custom-card-content-rating">
+              <ion-badge class="custom-badge ion-no-padding" color="white">
+                <ion-icon class="ion-margin-right-small" color="secondary" name="star"></ion-icon>
+                <ion-label color="secondary">4.9</ion-label>
+              </ion-badge>
+            </div>
+          </div>
+          <span class="custom-card-content-description">Burger · Fries · Wraps</span>
+          <div class="list-chips list-chips-smallest">
+            <ion-chip color="secondary">
+              <ion-icon name="hourglass"></ion-icon>
+              <ion-label>45 min</ion-label>
+            </ion-chip>
+            <ion-chip color="secondary">
+              <ion-icon name="bicycle"></ion-icon>
+              <ion-label>$6</ion-label>
+            </ion-chip>
+            <ion-chip color="success">
+              <ion-icon name="cash"></ion-icon>
+              <ion-label>No min. order value</ion-label>
+            </ion-chip>
+          </div>
+        </ion-card-content>
+      </ion-card>
+      <ion-card class="ion-no-margin ion-margin-bottom-large custom-card animate__animated animate__fadeIn" routerLink="/restaurants/detail">
+        <div class="card-img-badge card-img-badge-white">
+          <p>
+            <ion-icon name="trophy-outline"></ion-icon>Top 10 Restaurant
+          </p>
+        </div>
+        <div class="card-img-header" style="background: url(../../../../assets/img/restaurant_01.jpg)"></div>
+        <ion-card-content>
+          <div class="custom-card-content-title">
+            <p>Domino's</p>
+            <div class="custom-card-content-rating">
+              <ion-badge class="custom-badge ion-no-padding" color="white">
+                <ion-icon class="ion-margin-right-small" color="secondary" name="star"></ion-icon>
+                <ion-label color="secondary">4.9</ion-label>
+              </ion-badge>
+            </div>
+          </div>
+          <span class="custom-card-content-description">American Pizza · Snacks · Fingerfood</span>
+          <div class="list-chips list-chips-smallest">
+            <ion-chip color="secondary">
+              <ion-icon name="hourglass"></ion-icon>
+              <ion-label>60 min</ion-label>
+            </ion-chip>
+            <ion-chip color="success">
+              <ion-icon name="bicycle"></ion-icon>
+              <ion-label>Free delivery</ion-label>
+            </ion-chip>
+            <ion-chip color="secondary">
+              <ion-icon name="cash"></ion-icon>
+              <ion-label>min. $20</ion-label>
+            </ion-chip>
+          </div>
+        </ion-card-content>
+      </ion-card>
+      <ion-card class="ion-no-margin ion-margin-bottom-large custom-card animate__animated animate__fadeIn" routerLink="/restaurants/detail">
+        <div class="card-img-badge card-img-badge-white">
+          <p>
+            <ion-icon name="stats-chart-outline"></ion-icon>Most popular
+          </p>
+        </div>
+        <div class="card-img-header" style="background: url(../../../../assets/img/restaurant_02.jpg)"></div>
+        <ion-card-content>
+          <div class="custom-card-content-title">
+            <p>Soup Heaven</p>
+            <div class="custom-card-content-rating">
+              <ion-badge class="custom-badge ion-no-padding" color="white">
+                <ion-icon class="ion-margin-right-small" color="secondary" name="star"></ion-icon>
+                <ion-label color="secondary">4.6</ion-label>
+              </ion-badge>
+            </div>
+          </div>
+          <span class="custom-card-content-description">Soups · Bowls · Snacks</span>
+          <div class="list-chips list-chips-smallest">
+            <ion-chip color="secondary">
+              <ion-icon name="hourglass"></ion-icon>
+              <ion-label>30 min</ion-label>
+            </ion-chip>
+            <ion-chip color="secondary">
+              <ion-icon name="bicycle"></ion-icon>
+              <ion-label>$8</ion-label>
+            </ion-chip>
+            <ion-chip color="secondary">
+              <ion-icon name="cash"></ion-icon>
+              <ion-label>min. $22</ion-label>
+            </ion-chip>
+          </div>
+        </ion-card-content>
+      </ion-card>
+      <ion-card class="ion-no-margin ion-margin-bottom-large custom-card animate__animated animate__fadeIn" routerLink="/restaurants/detail">
+        <div class="card-img-badge card-img-badge-white">
+          <p>
+            <ion-icon name="diamond-outline"></ion-icon>New in town
+          </p>
+        </div>
+        <div class="card-img-header" style="background: url(../../../../assets/img/restaurant_03.jpg)"></div>
+        <ion-card-content>
+          <div class="custom-card-content-title">
+            <p>The Green House</p>
+            <div class="custom-card-content-rating">
+              <ion-badge class="custom-badge ion-no-padding" color="white">
+                <ion-icon class="ion-margin-right-small" color="secondary" name="star"></ion-icon>
+                <ion-label color="secondary">4.2</ion-label>
+              </ion-badge>
+            </div>
+          </div>
+          <span class="custom-card-content-description">Vegan · Vegetarian · Fresh</span>
+          <div class="list-chips list-chips-smallest">
+            <ion-chip color="secondary">
+              <ion-icon name="hourglass"></ion-icon>
+              <ion-label>20 min</ion-label>
+            </ion-chip>
+            <ion-chip color="success">
+              <ion-icon name="bicycle"></ion-icon>
+              <ion-label>Free delivery</ion-label>
+            </ion-chip>
+            <ion-chip color="success">
+              <ion-icon name="cash"></ion-icon>
+              <ion-label>No min. order value</ion-label>
+            </ion-chip>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </ng-container>
+
+    <!-- <ion-button expand="block" color="secondary" class="ion-margin-bottom" routerLink="/explore">
+      Discover all restaurants
+      <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
+    </ion-button> -->
+
+  </div>
+
+</ion-content>

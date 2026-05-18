@@ -1,0 +1,80 @@
+<ion-header collapse="fade" [translucent]="true" class="custom-header ion-no-border">
+  <ion-toolbar>
+    <ion-title>
+      <p style="font-weight: 700; font-size: 1.1rem; color: #1a1a1a;">Profilim</p>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="ion-padding" *ngIf="content_loaded">
+    
+    <div class="ion-text-center ion-margin-bottom">
+      <div class="profile-avatar-wrapper">
+        <ion-avatar style="width: 100px; height: 100px; margin: 0 auto;">
+          <img src="../../../../assets/img/avatar_01.jpg">
+        </ion-avatar>
+        <div class="edit-badge"><ion-icon name="camera-outline"></ion-icon></div>
+      </div>
+      <h2 class="ion-margin-top" style="font-weight: 800; color: #1a1a1a;">{{ profileForm.get('ad')?.value }} {{ profileForm.get('soyad')?.value }}</h2>
+      <p style="color: #666; font-size: 0.9rem;">{{ profileForm.get('email')?.value }}</p>
+    </div>
+
+    <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
+      <div class="section-card">
+        <ion-list class="form-list" lines="none">
+          <ion-item class="form-item">
+            <ion-label position="stacked">Adınız</ion-label>
+            <ion-input type="text" formControlName="ad"></ion-input>
+          </ion-item>
+  
+          <ion-item class="form-item">
+            <ion-label position="stacked">Soyadınız</ion-label>
+            <ion-input type="text" formControlName="soyad"></ion-input>
+          </ion-item>
+  
+          <ion-item class="form-item">
+            <ion-label position="stacked">E-posta</ion-label>
+            <ion-input type="email" formControlName="email" readonly="true"></ion-input>
+          </ion-item>
+  
+          <ion-item class="form-item">
+            <ion-label position="stacked">Telefon</ion-label>
+            <ion-input type="tel" formControlName="telefon"></ion-input>
+          </ion-item>
+  
+          <ion-item class="form-item">
+            <ion-label position="stacked">Yeni Şifre</ion-label>
+            <ion-input type="password" formControlName="sifre" placeholder="Boş bırakabilirsiniz"></ion-input>
+          </ion-item>
+        </ion-list>
+  
+        <ion-button expand="block" type="submit" class="ion-margin-top btn-next" [disabled]="!profileForm.valid">
+          Bilgileri Güncelle
+        </ion-button>
+
+        <ion-button expand="block" fill="outline" color="primary" routerLink="/secure/addresses" class="ion-margin-top" style="font-weight: 800; --border-radius: 14px; height: 52px; --border-width: 2px;">
+          <ion-icon name="location-outline" slot="start"></ion-icon>
+          ADRESLERİMİ YÖNET
+        </ion-button>
+
+        <ion-button expand="block" fill="clear" color="danger" (click)="signOut()" class="ion-margin-top" style="font-weight: 700;">
+          <ion-icon name="log-out-outline" slot="start"></ion-icon>
+          Oturumu Kapat
+        </ion-button>
+      </div>
+    </form>
+
+  </div>
+
+  <div *ngIf="!content_loaded" class="ion-padding">
+    <ion-list>
+      <ion-item *ngFor="let i of [1,2,3,4]">
+        <ion-label>
+            <h3><ion-skeleton-text animated style="width: 30%"></ion-skeleton-text></h3>
+            <p><ion-skeleton-text animated style="width: 80%"></ion-skeleton-text></p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </div>
+</ion-content>

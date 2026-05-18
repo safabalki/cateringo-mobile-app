@@ -1,0 +1,289 @@
+<ion-header [translucent]="true" class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/secure/home" text="Geri" color="light"></ion-back-button>
+    </ion-buttons>
+    <ion-title style="color: white; font-weight: 700;">{{ category?.baslik }} Sipariş</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding gray-bg">
+  
+  <!-- Step Indicator - Simplified -->
+  <div class="wizard-stepper ion-margin-bottom">
+    <div class="stepper-track"></div>
+    <div class="stepper-item" [class.active]="currentStep >= 1" [class.done]="currentStep > 1">
+      <div class="step-dot">1</div>
+      <span>MENÜ</span>
+    </div>
+    <div class="stepper-item" [class.active]="currentStep >= 2" [class.done]="currentStep > 2">
+      <div class="step-dot">2</div>
+      <span>TESLİMAT</span>
+    </div>
+    <div class="stepper-item" [class.active]="currentStep >= 3" [class.done]="currentStep > 3">
+      <div class="step-dot">3</div>
+      <span>ÖDEME</span>
+    </div>
+    <div class="stepper-item" [class.active]="currentStep >= 4" [class.done]="currentStep > 4">
+      <div class="step-dot">4</div>
+      <span>ONAY</span>
+    </div>
+  </div>
+
+  <div [ngSwitch]="currentStep">
+
+    <!-- STEP 1: MENÜ & DETAY -->
+    <div *ngSwitchCase="1" class="step-content animate__animated animate__fadeIn">
+      <div class="section-card">
+        <h3 class="section-title">Menü Seçimi</h3>
+        <ion-list lines="none" class="product-selection-list">
+          <ion-item *ngFor="let product of products" class="product-item">
+            <ion-thumbnail slot="start" class="product-thumb">
+              <img [src]="uploadUrl + (product.resim ? 'catering_urunler/' + product.resim : 'logo.jpg')" onerror="this.src='https://placehold.co/100?text=Menü'">
+            </ion-thumbnail>
+            <ion-label>
+              <h2 class="product-name">{{ product.urun_adi }}</h2>
+              <p class="product-price">{{ product.fiyat }} TL / Kişi</p>
+            </ion-label>
+            <div slot="end" class="qty-selector">
+              <ion-button fill="clear" (click)="product.quantity > 0 ? (product.quantity = product.quantity - 1) : 0" size="small">
+                <ion-icon name="remove-circle"></ion-icon>
+              </ion-button>
+              <span class="qty-num">{{ product.quantity || 0 }}</span>
+              <ion-button fill="clear" (click)="product.quantity = (product.quantity || 0) + 1" size="small">
+                <ion-icon name="add-circle"></ion-icon>
+              </ion-button>
+            </div>
+          </ion-item>
+        </ion-list>
+      </div>
+
+      <div class="section-card ion-margin-top" *ngIf="categoryFields.length > 0">
+        <h3 class="section-title">Etkinlik Detayları</h3>
+        <ion-list lines="none" class="form-list">
+          <div *ngFor="let field of categoryFields" class="field-wrapper">
+            
+            <ion-item class="form-item" *ngIf="field.tip !== 'checkbox'">
+              <ion-label position="stacked">
+                {{ field.etiket }} 
+                <span *ngIf="field.zorunlu" class="text-danger">*</span>
+                <span *ngIf="field.fiyat_degeri > 0" class="field-price-tag">
+                  (+{{ field.fiyat_degeri }} TL)
+                </span>
+              </ion-label>
+
+              <!-- Text/Number -->
+              <ion-input *ngIf="field.tip === 'text' || field.tip === 'number' || (field.tip !== 'textarea' && field.tip !== 'select' && !field.tip.includes('date') && field.tip !== 'radio')" 
+                [type]="field.tip === 'number' ? 'number' : 'text'" [(ngModel)]="formData[field.name]" placeholder="Bilgi giriniz"></ion-input>
+
+              <!-- Select -->
+              <ion-select *ngIf="field.tip === 'select'" [(ngModel)]="formData[field.name]" placeholder="Seçim yapınız" interface="action-sheet" class="form-select">
+                <ion-select-option *ngFor="let opt of field.secenekler | jsonParse" [value]="opt.label || opt">{{ opt.label || opt }}</ion-select-option>
+              </ion-select>
+
+              <!-- Date/Time -->
+              <div *ngIf="field.tip.includes('date') || field.tip.includes('time')" class="dt-trigger-box">
+                <ion-datetime-button [datetime]="'dt-' + field.name"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime [id]="'dt-' + field.name" [presentation]="field.tip.includes('time') ? 'date-time' : 'date'"
+                      [preferWheel]="true" locale="tr-TR" [(ngModel)]="formData[field.name]" [showDefaultButtons]="true"></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </div>
+            </ion-item>
+
+            <!-- Checkbox -->
+            <ion-item *ngIf="field.tip === 'checkbox'" class="form-item checkbox-item">
+              <ion-label>
+                {{ field.etiket }}
+                <span *ngIf="field.fiyat_degeri > 0" class="field-price-tag inline">
+                  (+{{ field.fiyat_degeri }} TL)
+                </span>
+              </ion-label>
+              <ion-checkbox slot="start" [(ngModel)]="formData[field.name]"></ion-checkbox>
+            </ion-item>
+
+          </div>
+        </ion-list>
+      </div>
+    </div>
+
+    <!-- STEP 2: TESLİMAT & İLETİŞİM -->
+    <div *ngSwitchCase="2" class="step-content animate__animated animate__fadeIn">
+      <div class="section-card">
+        <h3 class="section-title">Teslimat Adresi</h3>
+        <ion-list lines="none" class="form-list">
+          <ion-item class="form-item">
+            <ion-label position="stacked">Adres Seçimi</ion-label>
+            <ion-select placeholder="Yeni Adres Gir" (ionChange)="onAddressSelect($event.detail.value)" [(ngModel)]="deliveryData.selected_address_id" class="form-select">
+              <ion-select-option value="">Yeni Adres Gir</ion-select-option>
+              <ion-select-option *ngFor="let addr of addresses" [value]="addr.id">{{ addr.adres_baslik }}</ion-select-option>
+            </ion-select>
+          </ion-item>
+          <div class="row ion-no-padding">
+             <div class="col-6">
+                <ion-item class="form-item">
+                  <ion-label position="stacked">İl</ion-label>
+                  <ion-select placeholder="İl seç" [(ngModel)]="deliveryData.city_id" (ionChange)="onCityChange()" class="form-select">
+                    <ion-select-option *ngFor="let city of cities" [value]="city.id">{{ city.il_adi }}</ion-select-option>
+                  </ion-select>
+                </ion-item>
+             </div>
+             <div class="col-6">
+                <ion-item class="form-item">
+                  <ion-label position="stacked">İlçe</ion-label>
+                  <ion-select placeholder="İlçe seç" [(ngModel)]="deliveryData.district_id" [disabled]="!deliveryData.city_id" 
+                    (ionChange)="onDistrictChange($event.detail.value)" class="form-select">
+                    <ion-select-option *ngFor="let dist of districts" [value]="dist.id">{{ dist.ilce_adi }}</ion-select-option>
+                  </ion-select>
+                </ion-item>
+             </div>
+          </div>
+          <ion-item class="form-item ion-margin-top">
+            <ion-label position="stacked">Adres Detayı</ion-label>
+            <ion-textarea rows="3" [(ngModel)]="deliveryData.address_text" placeholder="Cadde, sokak, mahalle..."></ion-textarea>
+          </ion-item>
+        </ion-list>
+      </div>
+
+      <div class="section-card ion-margin-top">
+        <h3 class="section-title">İletişim Bilgileri</h3>
+        <ion-list lines="none" class="form-list">
+          <ion-item class="form-item">
+            <ion-label position="stacked">Ad Soyad</ion-label>
+            <ion-input [(ngModel)]="userData.ad_soyad" placeholder="Ad Soyad giriniz"></ion-input>
+          </ion-item>
+          <ion-item class="form-item ion-margin-top">
+            <ion-label position="stacked">Telefon</ion-label>
+            <ion-input type="tel" [(ngModel)]="userData.telefon" placeholder="05XX XXX XX XX"></ion-input>
+          </ion-item>
+        </ion-list>
+      </div>
+    </div>
+
+    <!-- STEP 3: ÖDEME -->
+    <div *ngSwitchCase="3" class="step-content animate__animated animate__fadeIn">
+      <div class="section-card">
+        <h3 class="section-title">Ödeme Yöntemi</h3>
+        <ion-radio-group [(ngModel)]="paymentMethod">
+          <ion-item class="payment-method-item" *ngIf="siteSettings?.havale_aktif == 1">
+            <ion-radio slot="start" value="havale"></ion-radio>
+            <ion-label>
+              <h2>Havale / EFT</h2>
+              <p>IBAN bilgilerimize gönderim yapın.</p>
+            </ion-label>
+          </ion-item>
+          <ion-item class="payment-method-item ion-margin-top" *ngIf="siteSettings?.kredi_karti_aktif == 1">
+            <ion-radio slot="start" value="kredi_karti"></ion-radio>
+            <ion-label>
+              <h2>Kredi Kartı</h2>
+              <p>Güvenli online ödeme.</p>
+            </ion-label>
+          </ion-item>
+        </ion-radio-group>
+      </div>
+
+      <div class="bank-details-box ion-margin-top animate__animated animate__fadeIn" *ngIf="paymentMethod === 'havale'">
+        <p class="box-title">Banka Hesap Bilgileri</p>
+        <div class="box-content" [innerHTML]="siteSettings?.banka_bilgileri"></div>
+      </div>
+    </div>
+
+    <!-- STEP 4: ONAY -->
+    <div *ngSwitchCase="4" class="step-content animate__animated animate__fadeIn">
+      <div class="order-success-hero">
+        <div class="success-icon-wrapper">
+          <ion-icon name="shield-checkmark"></ion-icon>
+        </div>
+        <h2>Sipariş özeti</h2>
+        <p>Lütfen bilgilerinizi kontrol edip onaylayın.</p>
+      </div>
+
+      <div class="order-summary-card ion-margin-top">
+        <div class="summary-header">
+           <ion-icon name="receipt-outline" color="primary"></ion-icon>
+           <h2>Seçili Ürünler & Detaylar</h2>
+        </div>
+        
+        <div class="summary-list">
+          <div class="summary-row" *ngFor="let p of selectedProducts">
+             <span class="lbl">{{ p.urun_adi }} (x{{ p.quantity }})</span>
+             <span class="val">{{ p.fiyat * p.quantity }} TL</span>
+          </div>
+          
+          <div class="summary-row" *ngFor="let field of categoryFields | filterActive:formData; let i = index">
+             <span class="lbl">{{ field.etiket }}</span>
+             <span class="val">
+                <ng-container [ngSwitch]="field.tip">
+                  <!-- Tarih/Saat -->
+                  <ng-container *ngSwitchCase="'date'">{{ formData[field.name] | date:'dd.MM.yyyy' }}</ng-container>
+                  <ng-container *ngSwitchCase="'datetime'">{{ formData[field.name] | date:'dd.MM.yyyy HH:mm' }}</ng-container>
+                  <ng-container *ngSwitchCase="'time'">{{ formData[field.name] | date:'HH:mm' }}</ng-container>
+                  
+                  <!-- Checkbox -->
+                  <ng-container *ngSwitchCase="'checkbox'">{{ formData[field.name] ? 'Evet' : 'Hayır' }}</ng-container>
+                  
+                  <!-- Diğer Alanlar ve Fiyatlar -->
+                  <ng-container *ngSwitchDefault>
+                    <ng-container *ngIf="getFieldPrice(field, formData[field.name], 0) > 0; else plainValue">
+                        <span *ngIf="(field.tip === 'number' || field.tip === 'select') && field.carpan_turu !== 'sepet_toplami'" style="color: #666; font-size: 0.8rem;">
+                          {{ formData[field.name] }} x {{ (getOptionPrice(field, formData[field.name]) || field.fiyat_degeri) }} TL = 
+                        </span>
+                        +{{ getFieldPrice(field, formData[field.name], totalBeforeFields(i)) }} TL
+                    </ng-container>
+                    <ng-template #plainValue>{{ formData[field.name] }}</ng-template>
+                  </ng-container>
+                </ng-container>
+             </span>
+          </div>
+          
+          <div class="summary-row" *ngIf="deliveryFee > 0">
+             <span class="lbl">Teslimat Ücreti</span>
+             <span class="val">+{{ deliveryFee }} TL</span>
+          </div>
+
+          <div class="total-row-highlight ion-margin-top">
+            <span class="lbl">GENEL TOPLAM</span>
+            <span class="val">{{ totalPrice }} TL</span>
+          </div>
+        </div>
+
+        <div class="delivery-summary-box ion-margin-top">
+           <div class="summary-header-mini">
+             <ion-icon name="location-outline"></ion-icon>
+             <h3>Teslimat & İletişim</h3>
+           </div>
+           <p><strong>Adres:</strong> {{ deliveryData.address_text }}</p>
+           <p><strong>İl/İlçe:</strong> {{ deliveryData.city_id | cityName:cities }} / {{ deliveryData.district_id | districtName:districts }}</p>
+           <p><strong>Alıcı:</strong> {{ userData.ad_soyad }} ({{ userData.telefon }})</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</ion-content>
+
+<ion-footer class="ion-no-border wizard-footer">
+  <ion-toolbar class="ion-padding-horizontal">
+    <div class="wizard-footer-flex">
+      <div class="footer-col-left">
+        <ion-button (click)="prevStep()" fill="clear" class="btn-footer-back" *ngIf="currentStep > 1">
+          <ion-icon name="chevron-back-outline" slot="start"></ion-icon>
+          GERİ
+        </ion-button>
+      </div>
+      
+      <div class="footer-col-right">
+        <ion-button (click)="nextStep()" fill="solid" class="btn-footer-next" *ngIf="currentStep < 4">
+          DEVAM ET <ion-icon name="arrow-forward" slot="end"></ion-icon>
+        </ion-button>
+        <ion-button (click)="submitOrder()" fill="solid" color="success" class="btn-footer-next btn-success" *ngIf="currentStep === 4">
+          SİPARİŞİ ONAYLA <ion-icon name="checkmark-circle" slot="end"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+  </ion-toolbar>
+</ion-footer>
+
