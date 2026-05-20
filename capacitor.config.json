@@ -1,13 +1,9 @@
 {
-  "appId": "io.ionic.cateringo",
+  "appId": "com.development.cateringo",
   "appName": "Cateringo",
   "webDir": "www",
   "bundledWebRuntime": false,
   "ios": {
     "scheme": "App"
-  },
-  "server": {
-    "cleartext": true,
-    "url": "http://192.168.1.22:8100"
   }
 }
