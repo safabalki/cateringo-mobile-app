@@ -45,7 +45,8 @@ export class HomePage implements OnInit {
   async ngOnInit() {
     try {
       this.categories = await this.dataService.getCategories() || [];
-      this.products = await this.dataService.getProducts() || [];
+      const allProducts = await this.dataService.getProducts() || [];
+      this.products = allProducts.filter((p: any) => p.populer == 1 || p.populer == '1');
       this.settings = await this.dataService.getSettings();
       this.user = await this.dataService.getProfile();
     } catch (e) {

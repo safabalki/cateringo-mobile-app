@@ -33,7 +33,10 @@
             <ion-icon [name]="addr.adres_baslik.toLowerCase().includes('ev') ? 'home-outline' : (addr.adres_baslik.toLowerCase().includes('iş') ? 'business-outline' : 'location-outline')"></ion-icon>
           </div>
           <ion-label>
-            <h2 class="address-title">{{ addr.adres_baslik }}</h2>
+            <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <h2 class="address-title" style="margin: 0; font-weight: 700;">{{ addr.adres_baslik }}</h2>
+              <span *ngIf="addr.varsayilan == 1" style="font-size: 0.7rem; background: #ffe4e6; color: #dc2626; padding: 2px 8px; border-radius: 20px; font-weight: 800; display: inline-block;">Varsayılan</span>
+            </div>
             <p class="address-summary">{{ addr.il_adi }} / {{ addr.ilce_adi }}</p>
             <p class="address-fulltext">{{ addr.adres }}</p>
           </ion-label>
@@ -41,6 +44,12 @@
             <ion-icon name="create-outline" slot="icon-only"></ion-icon>
           </ion-button>
         </ion-item>
+
+        <ion-item-options side="start" *ngIf="addr.varsayilan != 1">
+          <ion-item-option color="warning" (click)="setAsDefault(addr)">
+            <ion-icon name="star-outline" slot="icon-only"></ion-icon>
+          </ion-item-option>
+        </ion-item-options>
 
         <ion-item-options side="end">
           <ion-item-option color="danger" (click)="deleteAddress(addr)">
@@ -96,6 +105,16 @@
             <ion-item class="form-item ion-margin-top" lines="none">
               <ion-label position="stacked">Tam Adres</ion-label>
               <ion-textarea rows="3" [(ngModel)]="newAddress.adres" placeholder="Cadde, sokak, mahalle..."></ion-textarea>
+            </ion-item>
+
+            <ion-item class="form-item ion-margin-top" lines="none">
+              <ion-label position="stacked">Telefon Numarası</ion-label>
+              <ion-input type="tel" [(ngModel)]="newAddress.telefon" placeholder="05XX XXX XX XX" maxlength="14" (ionInput)="formatPhone($event)"></ion-input>
+            </ion-item>
+
+            <ion-item class="form-item ion-margin-top" lines="none" style="--background: transparent; padding-right: 0;">
+              <ion-label style="font-size: 0.9rem; color: #1e293b !important; font-weight: 600;">Varsayılan Adres Yap</ion-label>
+              <ion-toggle slot="end" [(ngModel)]="newAddress.varsayilan" color="primary"></ion-toggle>
             </ion-item>
 
             <ion-button expand="block" mode="ios" (click)="saveAddress()" class="btn-prominent ion-margin-top">

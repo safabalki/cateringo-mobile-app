@@ -17,11 +17,8 @@
 <ion-content [fullscreen]="true">
 
   <div class="hero-section ion-padding-horizontal ion-padding-top">
-    <h1 class="hero-title animate__animated animate__fadeIn">
-      Her Şey Dahil,<br>
-      <span>Toplu Yemek!</span>
-    </h1>
-    <p class="hero-subtitle">Profesyonel catering yanınızda.</p>
+    <h1 class="hero-title animate__animated animate__fadeIn" [innerHTML]="settings?.mobil_ayarlar?.hero?.title || 'Her Şey Dahil,<br><span>Toplu Yemek!</span>'"></h1>
+    <p class="hero-subtitle">{{ settings?.mobil_ayarlar?.hero?.subtitle || 'Profesyonel catering yanınızda.' }}</p>
   </div>
 
   <!-- Prominent Category Grid -->
@@ -56,10 +53,10 @@
 
   <!-- Detailed Product Cards (Explore Style) -->
   <div class="ion-padding-horizontal ion-margin-top-small">
-    <ion-card class="explore-product-card ion-no-margin ion-margin-bottom" *ngFor="let product of products | slice:0:10" [routerLink]="['/secure/order-wizard', product.kategori_id]">
+    <ion-card class="explore-product-card ion-no-margin ion-margin-bottom" *ngFor="let product of products | slice:0:10" [routerLink]="['/secure/order-wizard', product.kategori_id]" [queryParams]="{ product_id: product.id }">
       <div class="card-image-box">
         <img [src]="uploadUrl + 'catering_urunler/' + product.resim" onerror="this.src='https://placehold.co/400x200?text=Cateringo+Menü'">
-        <div class="card-badge">
+        <div class="card-badge" *ngIf="product.populer == '1' || product.populer == 1">
           <ion-icon name="star"></ion-icon> Popüler Seçim
         </div>
         <div class="card-price-overlay">{{ product.fiyat }} TL</div>
@@ -71,11 +68,11 @@
         </div>
         <p class="card-description">{{ product.aciklama || '' }}</p>
         <div class="card-meta">
-           <ion-chip color="secondary" outline="true">
+           <ion-chip color="secondary" outline="true" *ngIf="product.min_kisi && product.min_kisi > 0">
              <ion-icon name="people-outline"></ion-icon>
-             <ion-label>Min 50 Kişi</ion-label>
+             <ion-label>Min {{ product.min_kisi }} Kişi</ion-label>
            </ion-chip>
-           <ion-chip color="success" outline="true">
+           <ion-chip color="success" outline="true" *ngIf="product.onayli == '1' || product.onayli == 1">
              <ion-icon name="checkmark-done-circle-outline"></ion-icon>
              <ion-label>Onaylı Lezzet</ion-label>
            </ion-chip>
@@ -84,23 +81,15 @@
     </ion-card>
   </div>
 
-  <div class="info-card-container ion-padding">
+  <div class="info-card-container ion-padding" *ngIf="settings?.mobil_ayarlar?.how_it_works">
      <ion-card class="how-it-works-card">
        <ion-card-header>
-         <ion-card-title>Nasıl Sipariş Verilir? 📋</ion-card-title>
+         <ion-card-title>{{ settings.mobil_ayarlar.how_it_works.title }}</ion-card-title>
        </ion-card-header>
        <ion-card-content>
-         <div class="step-mini">
-           <span class="step-num">1</span>
-           <p>Etkinlik türünü ve menüyü seçin.</p>
-         </div>
-         <div class="step-mini">
-           <span class="step-num">2</span>
-           <p>Kişi sayısı ve teslimat bilgilerini girin.</p>
-         </div>
-         <div class="step-mini">
-           <span class="step-num">3</span>
-           <p>Ödemenizi yapın, biz kapınıza getirelim!</p>
+         <div class="step-mini" *ngFor="let step of settings.mobil_ayarlar.how_it_works.steps; let i = index">
+           <span class="step-num">{{ i + 1 }}</span>
+           <p>{{ step }}</p>
          </div>
        </ion-card-content>
      </ion-card>

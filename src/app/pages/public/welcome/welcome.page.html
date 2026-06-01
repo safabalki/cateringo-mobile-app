@@ -6,15 +6,11 @@
       <h3 class="animate__animated animate__fadeInUp">{{ settings?.firmaAdi }}<br>{{ settings?.firmaSlogan }}</h3>
       <div class="animate__animated animate__fadeInUp ion-padding" [innerHTML]="settings?.firmaGenelBilgi"></div>
     </ng-template>
-    <ng-template swiperSlide>
-      <img src="../../../../assets/img/illu-2.png">
-      <h3>Kolayca Sipariş Verin.</h3>
-      <p>Dilediğiniz kategoriden ürünlerinizi seçin, adresinizi belirleyin ve hızlıca siparişinizi oluşturun.</p>
-    </ng-template>
-    <ng-template swiperSlide>
-      <img src="../../../../assets/img/illu-3.png">
-      <h3>Sipariş Takibi.</h3>
-      <p>Siparişlerinizin durumunu anlık olarak takip edin, geçmiş siparişlerinize kolayca ulaşın.</p>
+    
+    <ng-template swiperSlide *ngFor="let slide of settings?.mobil_ayarlar?.welcome_slides">
+      <img [src]="slide.img.startsWith('http') ? slide.img : '../../../../assets/img/' + slide.img">
+      <h3>{{ slide.title }}</h3>
+      <p>{{ slide.desc }}</p>
     </ng-template>
   </swiper>
 </ion-content>

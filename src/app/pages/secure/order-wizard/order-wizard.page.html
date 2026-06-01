@@ -1,7 +1,11 @@
 <ion-header [translucent]="true" class="ion-no-border">
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/secure/home" text="Geri" color="light"></ion-back-button>
+      <ion-back-button *ngIf="currentStep === 1" defaultHref="/secure/home" text="Geri" color="light"></ion-back-button>
+      <ion-button *ngIf="currentStep > 1" (click)="prevStep()" color="light">
+        <ion-icon slot="start" name="chevron-back"></ion-icon>
+        Geri
+      </ion-button>
     </ion-buttons>
     <ion-title style="color: white; font-weight: 700;">{{ category?.baslik }} Sipariş</ion-title>
   </ion-toolbar>
@@ -12,19 +16,19 @@
   <!-- Step Indicator - Simplified -->
   <div class="wizard-stepper ion-margin-bottom">
     <div class="stepper-track"></div>
-    <div class="stepper-item" [class.active]="currentStep >= 1" [class.done]="currentStep > 1">
+    <div class="stepper-item" [class.active]="currentStep >= 1" [class.done]="currentStep > 1" (click)="goToStep(1)">
       <div class="step-dot">1</div>
       <span>MENÜ</span>
     </div>
-    <div class="stepper-item" [class.active]="currentStep >= 2" [class.done]="currentStep > 2">
+    <div class="stepper-item" [class.active]="currentStep >= 2" [class.done]="currentStep > 2" (click)="goToStep(2)">
       <div class="step-dot">2</div>
       <span>TESLİMAT</span>
     </div>
-    <div class="stepper-item" [class.active]="currentStep >= 3" [class.done]="currentStep > 3">
+    <div class="stepper-item" [class.active]="currentStep >= 3" [class.done]="currentStep > 3" (click)="goToStep(3)">
       <div class="step-dot">3</div>
       <span>ÖDEME</span>
     </div>
-    <div class="stepper-item" [class.active]="currentStep >= 4" [class.done]="currentStep > 4">
+    <div class="stepper-item" [class.active]="currentStep >= 4" [class.done]="currentStep > 4" (click)="goToStep(4)">
       <div class="step-dot">4</div>
       <span>ONAY</span>
     </div>
@@ -46,11 +50,11 @@
               <p class="product-price">{{ product.fiyat }} TL</p>
             </ion-label>
             <div slot="end" class="qty-selector">
-              <ion-button fill="clear" (click)="product.quantity > 0 ? (product.quantity = product.quantity - 1) : 0" size="small">
+              <ion-button fill="clear" (click)="product.quantity > 0 ? (product.quantity = product.quantity - 1) : 0; calculateTotal()" size="small">
                 <ion-icon name="remove-circle"></ion-icon>
               </ion-button>
               <span class="qty-num">{{ product.quantity || 0 }}</span>
-              <ion-button fill="clear" (click)="product.quantity = (product.quantity || 0) + 1" size="small">
+              <ion-button fill="clear" (click)="product.quantity = (product.quantity || 0) + 1; calculateTotal()" size="small">
                 <ion-icon name="add-circle"></ion-icon>
               </ion-button>
             </div>
@@ -77,7 +81,7 @@
                 [type]="field.tip === 'number' ? 'number' : 'text'" [(ngModel)]="formData[field.name]" placeholder="Bilgi giriniz"></ion-input>
 
               <!-- Select -->
-              <ion-select *ngIf="field.tip === 'select'" [(ngModel)]="formData[field.name]" placeholder="Seçim yapınız" interface="action-sheet" cancelText="İptal" okText="Tamam" class="form-select">
+              <ion-select *ngIf="field.tip === 'select'" [(ngModel)]="formData[field.name]" (ionChange)="calculateTotal()" placeholder="Seçim yapınız" interface="action-sheet" cancelText="İptal" okText="Tamam" class="form-select">
                 <ion-select-option *ngFor="let opt of field.secenekler | jsonParse" [value]="opt.label || opt">{{ opt.label || opt }}</ion-select-option>
               </ion-select>
 
@@ -87,7 +91,7 @@
                 <ion-modal [keepContentsMounted]="true">
                   <ng-template>
                     <ion-datetime [id]="'dt-' + field.name" [presentation]="field.tip.includes('time') ? 'date-time' : 'date'"
-                      [preferWheel]="true" locale="tr-TR" [(ngModel)]="formData[field.name]" [showDefaultButtons]="true" doneText="Tamam" cancelText="İptal"></ion-datetime>
+                      [preferWheel]="true" locale="tr-TR" [(ngModel)]="formData[field.name]" (ionChange)="calculateTotal()" [showDefaultButtons]="true" doneText="Tamam" cancelText="İptal"></ion-datetime>
                   </ng-template>
                 </ion-modal>
               </div>
@@ -101,7 +105,7 @@
                   (+{{ field.fiyat_degeri }} TL)
                 </span>
               </ion-label>
-              <ion-checkbox slot="start" [(ngModel)]="formData[field.name]"></ion-checkbox>
+              <ion-checkbox slot="start" [(ngModel)]="formData[field.name]" (ionChange)="calculateTotal()"></ion-checkbox>
             </ion-item>
 
           </div>
@@ -151,7 +155,7 @@
           </ion-item>
           <ion-item class="form-item ion-margin-top">
             <ion-label position="stacked">Telefon</ion-label>
-            <ion-input type="tel" [(ngModel)]="userData.telefon" placeholder="05XX XXX XX XX"></ion-input>
+            <ion-input type="tel" [(ngModel)]="userData.telefon" placeholder="05XX XXX XX XX" maxlength="14" (ionInput)="formatPhone($event)"></ion-input>
           </ion-item>
         </ion-list>
       </div>
@@ -181,7 +185,7 @@
 
       <div class="bank-details-box ion-margin-top animate__animated animate__fadeIn" *ngIf="paymentMethod === 'havale'">
         <p class="box-title">Banka Hesap Bilgileri</p>
-        <div class="box-content" [innerHTML]="siteSettings?.banka_bilgileri"></div>
+        <div class="box-content" [innerHTML]="getSafeBankaBilgileri()"></div>
       </div>
     </div>
 
@@ -316,21 +320,21 @@
 <ion-footer class="ion-no-border wizard-footer">
   <ion-toolbar class="ion-padding-horizontal">
     <div class="wizard-footer-flex">
-      <div class="footer-col-left">
-        <ion-button (click)="prevStep()" fill="clear" class="btn-footer-back" *ngIf="currentStep > 1">
-          <ion-icon name="chevron-back-outline" slot="start"></ion-icon>
-          GERİ
-        </ion-button>
-      </div>
+      <ion-button (click)="nextStep()" fill="solid" class="btn-footer-next-full" *ngIf="currentStep < 4">
+        DEVAM ET 
+        <ng-container *ngIf="totalPrice > 0 && (currentStep === 1 || currentStep === 3)">
+          | {{ totalPrice | number:'1.2-2' }} TL
+        </ng-container>
+        <ion-icon name="arrow-forward" slot="end"></ion-icon>
+      </ion-button>
       
-      <div class="footer-col-right">
-        <ion-button (click)="nextStep()" fill="solid" class="btn-footer-next" *ngIf="currentStep < 4">
-          DEVAM ET <ion-icon name="arrow-forward" slot="end"></ion-icon>
-        </ion-button>
-        <ion-button (click)="submitOrder()" fill="solid" color="success" class="btn-footer-next btn-success" *ngIf="currentStep === 4">
-          SİPARİŞİ ONAYLA <ion-icon name="checkmark-circle" slot="end"></ion-icon>
-        </ion-button>
-      </div>
+      <ion-button (click)="submitOrder()" fill="solid" class="btn-footer-next-full btn-success" *ngIf="currentStep === 4">
+        SİPARİŞİ ONAYLA 
+        <ng-container *ngIf="totalPrice > 0">
+          | {{ totalPrice | number:'1.2-2' }} TL
+        </ng-container>
+        <ion-icon name="checkmark-circle" slot="end"></ion-icon>
+      </ion-button>
     </div>
   </ion-toolbar>
 </ion-footer>

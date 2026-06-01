@@ -25,6 +25,7 @@
     flex-direction: column;
     align-items: center;
     width: 25%;
+    cursor: pointer;
     
     .step-dot {
       width: 32px;
@@ -150,9 +151,16 @@
       margin-bottom: 8px !important;
     }
     
-    ion-input, ion-textarea, ion-select {
+    ion-input, ion-textarea {
       font-weight: 500;
       color: #1a1a1a;
+    }
+    
+    ion-select {
+      font-weight: 500;
+      color: #1a1a1a;
+      width: 100%;
+      justify-content: space-between;
     }
   }
   
@@ -383,69 +391,37 @@
 .wizard-footer-flex {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   width: 100%;
-  padding: 4px 8px;
-  gap: 8px;
+  padding: 4px 0;
 }
 
-.footer-col-left, .footer-col-right {
-  display: flex;
-  align-items: center;
-}
-
-.footer-col-right {
-  flex: 1;
-  justify-content: flex-end;
-}
-
-.btn-footer-back {
-  --color: #64748b !important;
-  --border-color: #e2e8f0 !important;
-  --border-width: 1.5px !important;
-  --border-style: solid !important;
-  --border-radius: 14px !important;
-  height: 44px;
-  font-weight: 700;
-  font-size: 0.85rem;
+.btn-footer-next-full {
+  --border-radius: 16px !important;
+  height: 50px;
+  font-weight: 800;
+  width: 100%;
+  margin: 0;
+  font-size: 14px;
   letter-spacing: 0.8px;
-  margin: 0;
-  min-width: 90px;
-  
-  &::part(native) {
-    border: 1.5px solid #e2e8f0;
-    padding: 0 12px;
-    background: transparent;
-  }
-}
-
-.btn-footer-next {
-  --border-radius: 14px !important;
-  height: 44px;
-  font-weight: 900;
-  width: 100%;
-  max-width: 125px;
-  margin: 0;
-  font-size: 13px;
-  letter-spacing: 1px;
   text-transform: uppercase;
   
   // Premium Red Gradient
-  --background: linear-gradient(135deg, #e11d48 0%, #be123c 100%) !important;
-  --box-shadow: 0 8px 20px rgba(225, 29, 72, 0.3);
+  --background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+  --box-shadow: 0 8px 20px rgba(220, 38, 38, 0.25);
   color: #fff !important;
 
   &::part(native) {
-    background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
-    box-shadow: 0 8px 20px rgba(225, 29, 72, 0.3);
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    box-shadow: 0 8px 20px rgba(220, 38, 38, 0.25);
   }
   
   &.btn-success {
-    --background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-    --box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+    --background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+    --box-shadow: 0 8px 20px rgba(220, 38, 38, 0.25);
     
     &::part(native) {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
     }
   }
 
@@ -455,7 +431,7 @@
   }
   
   &:active {
-    transform: scale(0.97);
+    transform: scale(0.98);
   }
 }
 

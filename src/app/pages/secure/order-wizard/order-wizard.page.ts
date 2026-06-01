@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DataService } from '../../../services/helper/data.service';
 import { LoadingController, ToastController, ModalController, ActionSheetController } from '@ionic/angular';
 import { environment } from 'src/environments/environment';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-order-wizard',
@@ -116,8 +117,13 @@ export class OrderWizardPage implements OnInit {
     private loadingController: LoadingController,
     private toastController: ToastController,
     private modalController: ModalController,
-    private actionSheetController: ActionSheetController
+    private actionSheetController: ActionSheetController,
+    private sanitizer: DomSanitizer
   ) { }
+
+  getSafeBankaBilgileri(): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(this.siteSettings?.banka_bilgileri || '');
+  }
 
   async ngOnInit() {
     this.categoryId = this.route.snapshot.paramMap.get('id');
@@ -146,10 +152,26 @@ export class OrderWizardPage implements OnInit {
       this.siteSettings = settingsData;
       
       if (profileData) {
+        let loadedPhone = profileData.telefon || '';
+        if (loadedPhone) {
+          const cleanVal = loadedPhone.replace(/\D/g, '');
+          if (cleanVal.length > 0) {
+            let val = cleanVal;
+            if (!val.startsWith('0')) {
+              val = '0' + val;
+            }
+            let formatted = val.substring(0, 4);
+            if (val.length > 4) formatted += ' ' + val.substring(4, 7);
+            if (val.length > 7) formatted += ' ' + val.substring(7, 9);
+            if (val.length > 9) formatted += ' ' + val.substring(9, 11);
+            loadedPhone = formatted;
+          }
+        }
+        
         this.userData = {
           ad_soyad: profileData.ad_soyad || '',
           email: profileData.email || '',
-          telefon: profileData.telefon || ''
+          telefon: loadedPhone
         };
       }
 
@@ -166,6 +188,7 @@ export class OrderWizardPage implements OnInit {
 
       // Ürünlerin miktarını 0 yapalım varsayılan
       this.products.forEach(p => p.quantity = 0);
+      this.calculateTotal();
 
       // Tarih/datetime alanlarına varsayılan bugünün tarihini ata
       this.categoryFields.forEach(field => {
@@ -180,6 +203,16 @@ export class OrderWizardPage implements OnInit {
       const defaultAddr = this.addresses.find(a => a.varsayilan == 1);
       if (defaultAddr) {
         this.onAddressSelect(defaultAddr.id);
+      }
+
+      // Eğer ana sayfadan belirli bir ürün tıklanarak gelindiyse miktarını 1 yapalım
+      const targetProductId = this.route.snapshot.queryParams['product_id'];
+      if (targetProductId && this.products) {
+        const product = this.products.find(p => p.id == targetProductId);
+        if (product) {
+          product.quantity = 1;
+          this.calculateTotal();
+        }
       }
 
     } catch (error) {
@@ -229,6 +262,23 @@ export class OrderWizardPage implements OnInit {
          this.deliveryData.district_id = addr.ilce_id;
       });
       this.deliveryData.address_text = addr.adres;
+
+      let addrPhone = addr.telefon || '';
+      if (addrPhone) {
+        const cleanVal = addrPhone.replace(/\D/g, '');
+        if (cleanVal.length > 0) {
+          let val = cleanVal;
+          if (!val.startsWith('0')) {
+            val = '0' + val;
+          }
+          let formatted = val.substring(0, 4);
+          if (val.length > 4) formatted += ' ' + val.substring(4, 7);
+          if (val.length > 7) formatted += ' ' + val.substring(7, 9);
+          if (val.length > 9) formatted += ' ' + val.substring(9, 11);
+          addrPhone = formatted;
+        }
+        this.userData.telefon = addrPhone;
+      }
     }
   }
 
@@ -307,29 +357,75 @@ export class OrderWizardPage implements OnInit {
     this.isDistrictModalOpen = false;
   }
 
-  nextStep() {
-    if (this.currentStep === 1) {
-      this.selectedProducts = this.products.filter(p => p.quantity > 0);
-      if (this.selectedProducts.length === 0) {
+  isStepValid(step: number): boolean {
+    if (step === 1) {
+      const selected = this.products ? this.products.filter(p => p.quantity > 0) : [];
+      if (selected.length === 0) {
         this.presentToast('Lütfen en az bir ürün seçiniz.');
-        return;
+        return false;
       }
-      // Zorunlu alan kontrolü
       for (let field of this.categoryFields) {
          if (field.zorunlu && !this.formData[field.name]) {
             this.presentToast(`Lütfen "${field.etiket}" alanını doldurun.`);
-            return;
+            return false;
          }
       }
-    } else if (this.currentStep === 2) {
+      return true;
+    }
+    
+    if (step === 2) {
       if (!this.deliveryData.city_id || !this.deliveryData.district_id || !this.deliveryData.address_text) {
         this.presentToast('Lütfen teslimat bilgilerini eksiksiz doldurun.');
-        return;
+        return false;
       }
       if (!this.userData.ad_soyad || !this.userData.telefon) {
         this.presentToast('Lütfen iletişim bilgilerini doldurun.');
+        return false;
+      }
+      const phoneRegex = /^(05[0-9]{2})\s([0-9]{3})\s([0-9]{2})\s([0-9]{2})$/;
+      if (!phoneRegex.test(this.userData.telefon)) {
+        this.presentToast('Lütfen geçerli bir telefon numarası giriniz (Örn: 05XX XXX XX XX).');
+        return false;
+      }
+      return true;
+    }
+    
+    if (step === 3) {
+      if (!this.paymentMethod) {
+        this.presentToast('Lütfen bir ödeme yöntemi seçiniz.');
+        return false;
+      }
+      return true;
+    }
+    
+    return true;
+  }
+
+  goToStep(targetStep: number) {
+    if (targetStep === this.currentStep) return;
+
+    if (targetStep < this.currentStep) {
+      this.currentStep = targetStep;
+      this.calculateTotal();
+      window.scrollTo(0,0);
+      return;
+    }
+
+    // İleriye gitmek istiyorsa, aradaki adımları sırayla doğrula
+    for (let s = this.currentStep; s < targetStep; s++) {
+      if (!this.isStepValid(s)) {
         return;
       }
+    }
+
+    this.currentStep = targetStep;
+    this.calculateTotal();
+    window.scrollTo(0,0);
+  }
+
+  nextStep() {
+    if (!this.isStepValid(this.currentStep)) {
+      return;
     }
 
     if (this.currentStep < 4) {
@@ -342,11 +438,18 @@ export class OrderWizardPage implements OnInit {
   prevStep() {
     if (this.currentStep > 1) {
       this.currentStep--;
+      this.calculateTotal();
       window.scrollTo(0,0);
     }
   }
 
   calculateTotal() {
+    if (this.products) {
+      this.selectedProducts = this.products.filter(p => p.quantity > 0);
+    } else {
+      this.selectedProducts = [];
+    }
+
     let subtotal = 0;
     this.selectedProducts.forEach(p => {
       subtotal += Number(p.fiyat) * Number(p.quantity);
@@ -355,16 +458,18 @@ export class OrderWizardPage implements OnInit {
     let extra = 0;
     let multiplicationFactors = 1;
 
-    this.categoryFields.forEach(field => {
-      const val = this.formData[field.name];
-      if (val) {
-        // Mevcut ara toplama göre bu alanın fiyat etkisini hesapla
-        const fieldImpact = this.getFieldPrice(field, val, subtotal + extra);
-        extra += fieldImpact;
-      }
-    });
+    if (this.categoryFields) {
+      this.categoryFields.forEach(field => {
+        const val = this.formData[field.name];
+        if (val) {
+          // Mevcut ara toplama göre bu alanın fiyat etkisini hesapla
+          const fieldImpact = this.getFieldPrice(field, val, subtotal + extra);
+          extra += fieldImpact;
+        }
+      });
+    }
 
-    this.totalPrice = subtotal + extra + this.deliveryFee;
+    this.totalPrice = subtotal + extra + (this.deliveryFee || 0);
     this.totalPrice = Number(this.totalPrice.toFixed(2));
   }
 
@@ -384,6 +489,7 @@ export class OrderWizardPage implements OnInit {
               il_id: this.deliveryData.city_id,
               ilce_id: this.deliveryData.district_id,
               adres: this.deliveryData.address_text,
+              telefon: this.userData.telefon,
               varsayilan: 0
           });
           if (addrRes && addrRes.status) {
@@ -422,6 +528,33 @@ export class OrderWizardPage implements OnInit {
     } finally {
       loading.dismiss();
     }
+  }
+
+  formatPhone(event: any) {
+    let val = event.target.value.replace(/\D/g, '');
+    if (val.length > 11) {
+      val = val.substring(0, 11);
+    }
+    
+    let formatted = '';
+    if (val.length > 0) {
+      if (!val.startsWith('0')) {
+        val = '0' + val;
+      }
+      formatted = val.substring(0, 4);
+      if (val.length > 4) {
+        formatted += ' ' + val.substring(4, 7);
+      }
+      if (val.length > 7) {
+        formatted += ' ' + val.substring(7, 9);
+      }
+      if (val.length > 9) {
+        formatted += ' ' + val.substring(9, 11);
+      }
+    }
+    
+    event.target.value = formatted;
+    this.userData.telefon = formatted;
   }
 
   async presentToast(message: string, color: string = 'danger') {

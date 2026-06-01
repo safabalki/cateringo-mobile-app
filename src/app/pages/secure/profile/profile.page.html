@@ -9,19 +9,14 @@
 <ion-content [fullscreen]="true">
   <div class="ion-padding" *ngIf="content_loaded">
     
-    <div class="ion-text-center ion-margin-bottom">
-      <div class="profile-avatar-wrapper">
-        <ion-avatar style="width: 100px; height: 100px; margin: 0 auto;">
-          <img src="../../../../assets/img/avatar_01.jpg">
-        </ion-avatar>
-        <div class="edit-badge"><ion-icon name="camera-outline"></ion-icon></div>
-      </div>
-      <h2 class="ion-margin-top" style="font-weight: 800; color: #1a1a1a;">{{ profileForm.get('ad')?.value }} {{ profileForm.get('soyad')?.value }}</h2>
-      <p style="color: #666; font-size: 0.9rem;">{{ profileForm.get('email')?.value }}</p>
-    </div>
-
     <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
       <div class="section-card">
+        <!-- Adreslerim Butonu (Resimdeki gibi kartın içinde en üstte ve kırmızı) -->
+        <ion-button expand="block" fill="solid" routerLink="/secure/addresses" class="btn-addresses ion-margin-bottom">
+          <ion-icon name="location" slot="start" style="font-size: 18px;"></ion-icon>
+          ADRESLERİM
+        </ion-button>
+
         <ion-list class="form-list" lines="none">
           <ion-item class="form-item">
             <ion-label position="stacked">Adınız</ion-label>
@@ -40,8 +35,11 @@
   
           <ion-item class="form-item">
             <ion-label position="stacked">Telefon</ion-label>
-            <ion-input type="tel" formControlName="telefon"></ion-input>
+            <ion-input type="tel" formControlName="telefon" placeholder="05XX XXX XX XX" maxlength="14" (ionInput)="formatPhone($event)"></ion-input>
           </ion-item>
+          <div class="error-message" *ngIf="profileForm.get('telefon').invalid && profileForm.get('telefon').touched" style="color: var(--ion-color-danger); font-size: 0.8rem; margin-top: 4px; padding-left: 16px; font-weight: 500;">
+            Lütfen geçerli bir telefon numarası giriniz (Örn: 05XX XXX XX XX).
+          </div>
   
           <ion-item class="form-item">
             <ion-label position="stacked">Yeni Şifre</ion-label>
@@ -49,21 +47,21 @@
           </ion-item>
         </ion-list>
   
-        <ion-button expand="block" type="submit" class="ion-margin-top btn-next" [disabled]="!profileForm.valid">
+        <!-- Bilgileri Güncelle Butonu (Kırmızı ve İnce, Köşeleri Yuvarlatılmış) -->
+        <ion-button expand="block" type="submit" [disabled]="!profileForm.valid" class="btn-update-info ion-margin-top">
           Bilgileri Güncelle
         </ion-button>
 
-        <ion-button expand="block" fill="outline" color="primary" routerLink="/secure/addresses" class="ion-margin-top" style="font-weight: 800; --border-radius: 14px; height: 52px; --border-width: 2px;">
-          <ion-icon name="location-outline" slot="start"></ion-icon>
-          ADRESLERİMİ YÖNET
-        </ion-button>
-
-        <ion-button expand="block" fill="clear" color="danger" (click)="signOut()" class="ion-margin-top" style="font-weight: 700;">
-          <ion-icon name="log-out-outline" slot="start"></ion-icon>
-          Oturumu Kapat
-        </ion-button>
       </div>
     </form>
+
+    <!-- Çıkış Yap Butonu (Sayfanın En Altında Temiz Bir Buton) -->
+    <div class="ion-text-center ion-margin-top-large" style="margin-top: 24px; margin-bottom: 16px;">
+      <ion-button fill="clear" color="danger" (click)="signOut()" style="font-weight: 700; font-size: 0.9rem;">
+        <ion-icon name="log-out-outline" slot="start" style="font-size: 18px;"></ion-icon>
+        Oturumu Kapat
+      </ion-button>
+    </div>
 
   </div>
 
