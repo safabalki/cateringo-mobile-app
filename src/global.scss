@@ -716,14 +716,15 @@ ion-tabs {
 }
 
 ion-tab-bar {
-  --background: var(--ion-color-secondary);
-  --border: none;
+  --background: #ffffff;
+  --border: 1px solid #f1f1f1;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.04);
 }
 
 ion-tab-button {
-  --color: var(--ion-color-medium);
-  --color-focused: var(--ion-color-white);
-  --color-selected: var(--ion-color-white);
+  --color: #94a3b8;
+  --color-focused: var(--ion-color-primary);
+  --color-selected: var(--ion-color-primary);
 }
 
 ion-tab-button>span {
@@ -813,17 +814,47 @@ ion-action-sheet.custom-action-sheet {
   margin-right: 16px !important;
 }
 
+/* İl/İlçe Seçimi Action Sheet */
+.city-district-action-sheet .action-sheet-group {
+  background: #ffffff;
+  border-radius: 14px 14px 0 0;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.city-district-action-sheet .action-sheet-title {
+  color: #1a1a1a;
+  font-weight: 700;
+  font-size: 16px;
+  text-align: center;
+  border-bottom: 1px solid #f1f1f1;
+  padding: 16px;
+}
+
+.city-district-action-sheet button.action-sheet-button {
+  color: #333;
+  font-size: 15px;
+  font-weight: 500;
+  min-height: 48px;
+}
+
+.city-district-action-sheet button.action-sheet-cancel {
+  color: var(--ion-color-primary);
+  font-weight: 700;
+  background: #f8f9fa;
+}
+
 /* Alert */
 ion-alert.sc-ion-alert-ios-h {
   --backdrop-opacity: .8;
 }
 
 .alert-wrapper.sc-ion-alert-ios {
-  background: var(--ion-color-secondary);
-  border-radius: 8px;
+  background: #ffffff;
+  border-radius: 14px;
   width: 100%;
-  max-width: calc(100% - 16px);
-  padding: 24px 0px 8px 0;
+  max-width: calc(100% - 32px);
+  padding: 20px 0px 8px 0;
 }
 
 .alert-head.sc-ion-alert-ios {
@@ -834,39 +865,64 @@ ion-alert.sc-ion-alert-ios-h {
 .alert-title.sc-ion-alert-ios {
   margin-top: 0px;
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 700;
+  color: #1a1a1a;
 }
 
 .alert-message.sc-ion-alert-ios {
   font-size: 14px;
-  color: var(--ion-color-primary);
+  color: #555;
 }
 
 .alert-button.sc-ion-alert-ios.danger {
-  color: var(--ion-color-white);
-  font-weight: 500;
+  color: #fff;
+  font-weight: 600;
   border: none;
   background: var(--ion-color-danger);
   margin: 0px 16px;
-  border-radius: 3px;
+  border-radius: 8px;
 }
 
 .alert-button.sc-ion-alert-ios.alert-button-role-cancel {
-  color: var(--ion-color-medium);
+  color: #888;
   font-weight: 500;
   border: none;
   background: transparent;
   margin: 0px 16px;
-  border-radius: 3px;
+  border-radius: 8px;
 }
 
 .alert-button.sc-ion-alert-ios:last-child {
   margin-top: 6px !important;
+  color: var(--ion-color-primary);
+  font-weight: 600;
 }
 
 .alert-button-group.sc-ion-alert-ios {
   max-width: 75%;
   margin: 0 auto;
+}
+
+/* ion-select alert/action-sheet radio listesi renk uyumu */
+.select-interface-option .alert-radio-label,
+.select-interface-option .alert-checkbox-label {
+  color: #1a1a1a !important;
+}
+
+.alert-radio-icon {
+  border-color: #ccc !important;
+}
+
+[aria-checked="true"] .alert-radio-icon {
+  border-color: var(--ion-color-primary) !important;
+}
+
+[aria-checked="true"] .alert-radio-inner {
+  background-color: var(--ion-color-primary) !important;
+}
+
+[aria-checked="true"] .alert-radio-label {
+  color: var(--ion-color-primary) !important;
 }
 
 /* Popover */
@@ -915,6 +971,16 @@ ion-searchbar.sc-ion-searchbar-ios-h {
   --cancel-button-color: var(--ion-color-medium);
   --background: var(--ion-color-primary-tint);
   --border-radius: 8px;
+}
+
+ion-searchbar.picker-searchbar {
+  --background: #f1f5f9 !important;
+  --color: #0f172a !important;
+  --placeholder-color: #64748b !important;
+  --icon-color: #64748b !important;
+  --border-radius: 12px !important;
+  --box-shadow: none !important;
+  padding: 8px 16px !important;
 }
 
 /* Skeleton */

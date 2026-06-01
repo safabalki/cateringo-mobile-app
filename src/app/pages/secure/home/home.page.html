@@ -62,14 +62,14 @@
         <div class="card-badge">
           <ion-icon name="star"></ion-icon> Popüler Seçim
         </div>
-        <div class="card-price-overlay">{{ product.fiyat }} TL / Kişi</div>
+        <div class="card-price-overlay">{{ product.fiyat }} TL</div>
       </div>
       <ion-card-content>
         <div class="card-title-row">
           <h3>{{ product.urun_adi }}</h3>
           <ion-icon name="arrow-forward-circle-outline" color="primary"></ion-icon>
         </div>
-        <p class="card-description">Tam kapsamlı menü, servis ekipmanları ve profesyonel personel hizmeti dahildir.</p>
+        <p class="card-description">{{ product.aciklama || '' }}</p>
         <div class="card-meta">
            <ion-chip color="secondary" outline="true">
              <ion-icon name="people-outline"></ion-icon>

@@ -32,7 +32,7 @@
     </div>
 
     <ion-list class="item-card-list" lines="none" *ngIf="content_loaded && orders.length > 0">
-      <ion-item *ngFor="let order of orders" button detail="false" class="ion-margin-bottom card-item">
+      <ion-item *ngFor="let order of orders" button detail="false" class="ion-margin-bottom card-item" [routerLink]="['/secure/order-detail', order.id]">
         <ion-label>
           <div class="order-header">
             <span class="order-code">#{{ order.siparis_kodu }}</span>

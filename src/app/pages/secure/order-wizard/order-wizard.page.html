@@ -43,7 +43,7 @@
             </ion-thumbnail>
             <ion-label>
               <h2 class="product-name">{{ product.urun_adi }}</h2>
-              <p class="product-price">{{ product.fiyat }} TL / Kişi</p>
+              <p class="product-price">{{ product.fiyat }} TL</p>
             </ion-label>
             <div slot="end" class="qty-selector">
               <ion-button fill="clear" (click)="product.quantity > 0 ? (product.quantity = product.quantity - 1) : 0" size="small">
@@ -77,7 +77,7 @@
                 [type]="field.tip === 'number' ? 'number' : 'text'" [(ngModel)]="formData[field.name]" placeholder="Bilgi giriniz"></ion-input>
 
               <!-- Select -->
-              <ion-select *ngIf="field.tip === 'select'" [(ngModel)]="formData[field.name]" placeholder="Seçim yapınız" interface="action-sheet" class="form-select">
+              <ion-select *ngIf="field.tip === 'select'" [(ngModel)]="formData[field.name]" placeholder="Seçim yapınız" interface="action-sheet" cancelText="İptal" okText="Tamam" class="form-select">
                 <ion-select-option *ngFor="let opt of field.secenekler | jsonParse" [value]="opt.label || opt">{{ opt.label || opt }}</ion-select-option>
               </ion-select>
 
@@ -87,7 +87,7 @@
                 <ion-modal [keepContentsMounted]="true">
                   <ng-template>
                     <ion-datetime [id]="'dt-' + field.name" [presentation]="field.tip.includes('time') ? 'date-time' : 'date'"
-                      [preferWheel]="true" locale="tr-TR" [(ngModel)]="formData[field.name]" [showDefaultButtons]="true"></ion-datetime>
+                      [preferWheel]="true" locale="tr-TR" [(ngModel)]="formData[field.name]" [showDefaultButtons]="true" doneText="Tamam" cancelText="İptal"></ion-datetime>
                   </ng-template>
                 </ion-modal>
               </div>
@@ -116,27 +116,22 @@
         <ion-list lines="none" class="form-list">
           <ion-item class="form-item">
             <ion-label position="stacked">Adres Seçimi</ion-label>
-            <ion-select placeholder="Yeni Adres Gir" (ionChange)="onAddressSelect($event.detail.value)" [(ngModel)]="deliveryData.selected_address_id" class="form-select">
+            <ion-select placeholder="Yeni Adres Gir" (ionChange)="onAddressSelect($event.detail.value)" [(ngModel)]="deliveryData.selected_address_id" interface="action-sheet" cancelText="İptal" okText="Tamam" class="form-select">
               <ion-select-option value="">Yeni Adres Gir</ion-select-option>
               <ion-select-option *ngFor="let addr of addresses" [value]="addr.id">{{ addr.adres_baslik }}</ion-select-option>
             </ion-select>
           </ion-item>
           <div class="row ion-no-padding">
              <div class="col-6">
-                <ion-item class="form-item">
+                <ion-item class="form-item" button (click)="openCityPicker()">
                   <ion-label position="stacked">İl</ion-label>
-                  <ion-select placeholder="İl seç" [(ngModel)]="deliveryData.city_id" (ionChange)="onCityChange()" class="form-select">
-                    <ion-select-option *ngFor="let city of cities" [value]="city.id">{{ city.il_adi }}</ion-select-option>
-                  </ion-select>
+                  <ion-input readonly [value]="getSelectedCityName()" placeholder="İl seç" style="pointer-events: none;"></ion-input>
                 </ion-item>
              </div>
              <div class="col-6">
-                <ion-item class="form-item">
+                <ion-item class="form-item" button (click)="openDistrictPicker()">
                   <ion-label position="stacked">İlçe</ion-label>
-                  <ion-select placeholder="İlçe seç" [(ngModel)]="deliveryData.district_id" [disabled]="!deliveryData.city_id" 
-                    (ionChange)="onDistrictChange($event.detail.value)" class="form-select">
-                    <ion-select-option *ngFor="let dist of districts" [value]="dist.id">{{ dist.ilce_adi }}</ion-select-option>
-                  </ion-select>
+                  <ion-input readonly [value]="getSelectedDistrictName()" placeholder="İlçe seç" [class.disabled-look]="!deliveryData.city_id" style="pointer-events: none;"></ion-input>
                 </ion-item>
              </div>
           </div>
@@ -167,14 +162,14 @@
       <div class="section-card">
         <h3 class="section-title">Ödeme Yöntemi</h3>
         <ion-radio-group [(ngModel)]="paymentMethod">
-          <ion-item class="payment-method-item" *ngIf="siteSettings?.havale_aktif == 1">
+          <ion-item class="payment-method-item" *ngIf="siteSettings?.havale_aktif == 1" button (click)="paymentMethod = 'havale'">
             <ion-radio slot="start" value="havale"></ion-radio>
             <ion-label>
               <h2>Havale / EFT</h2>
               <p>IBAN bilgilerimize gönderim yapın.</p>
             </ion-label>
           </ion-item>
-          <ion-item class="payment-method-item ion-margin-top" *ngIf="siteSettings?.kredi_karti_aktif == 1">
+          <ion-item class="payment-method-item ion-margin-top" *ngIf="siteSettings?.kredi_karti_aktif == 1" button (click)="paymentMethod = 'kredi_karti'">
             <ion-radio slot="start" value="kredi_karti"></ion-radio>
             <ion-label>
               <h2>Kredi Kartı</h2>
@@ -260,8 +255,61 @@
         </div>
       </div>
     </div>
-
   </div>
+
+  <!-- İl Seçim Modali -->
+  <ion-modal [isOpen]="isCityModalOpen" (didDismiss)="isCityModalOpen = false">
+    <ng-template>
+      <ion-header class="ion-no-border">
+        <ion-toolbar color="primary">
+          <ion-title style="color: white; font-weight: 700;">İl Seçiniz</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="isCityModalOpen = false" color="light">Kapat</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+        <ion-toolbar>
+          <ion-searchbar class="picker-searchbar" placeholder="İl ara..." (ionInput)="filterCities($event)" [debounce]="200" cancelButtonText="Vazgeç" animated></ion-searchbar>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        <ion-list lines="full">
+          <ion-item *ngFor="let city of filteredCities" button (click)="selectCity(city)">
+            <ion-label>{{ city.il_adi }}</ion-label>
+          </ion-item>
+          <ion-item *ngIf="filteredCities.length === 0" class="ion-text-center">
+            <ion-label color="medium">Sonuç bulunamadı</ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <!-- İlçe Seçim Modali -->
+  <ion-modal [isOpen]="isDistrictModalOpen" (didDismiss)="isDistrictModalOpen = false">
+    <ng-template>
+      <ion-header class="ion-no-border">
+        <ion-toolbar color="primary">
+          <ion-title style="color: white; font-weight: 700;">İlçe Seçiniz</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="isDistrictModalOpen = false" color="light">Kapat</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+        <ion-toolbar>
+          <ion-searchbar class="picker-searchbar" placeholder="İlçe ara..." (ionInput)="filterDistricts($event)" [debounce]="200" cancelButtonText="Vazgeç" animated></ion-searchbar>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        <ion-list lines="full">
+          <ion-item *ngFor="let district of filteredDistricts" button (click)="selectDistrict(district)">
+            <ion-label>{{ district.ilce_adi }}</ion-label>
+          </ion-item>
+          <ion-item *ngIf="filteredDistricts.length === 0" class="ion-text-center">
+            <ion-label color="medium">Sonuç bulunamadı</ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
 
 </ion-content>
 

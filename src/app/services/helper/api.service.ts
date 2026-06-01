@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { Router } from '@angular/router';
-import { map } from 'rxjs/operators';
+import { map, catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -40,12 +40,22 @@ export class ApiService {
     return response;
   }
 
+  private handleError(error: any) {
+    if (error && error.status === 401) {
+      localStorage.removeItem('api_token');
+      localStorage.removeItem('user');
+      this.router.navigateByUrl('/signin');
+    }
+    return throwError(() => error);
+  }
+
   get(endpoint: string, params: any = {}): Observable<any> {
     return this.http.get(this.baseUrl + endpoint, { 
       headers: this.getHeaders(),
       params: params 
     }).pipe(
-      map(res => this.handleResponse(res))
+      map(res => this.handleResponse(res)),
+      catchError(err => this.handleError(err))
     );
   }
 
@@ -53,14 +63,16 @@ export class ApiService {
     return this.http.post(this.baseUrl + endpoint, data, { 
       headers: this.getHeaders() 
     }).pipe(
-      map(res => this.handleResponse(res))
+      map(res => this.handleResponse(res)),
+      catchError(err => this.handleError(err))
     );
   }
 
   // Auth gerektiren post işlemleri için (örneğin FormData gerekiyorsa)
   postPlain(endpoint: string, data: any): Observable<any> {
     return this.http.post(this.baseUrl + endpoint, data).pipe(
-      map(res => this.handleResponse(res))
+      map(res => this.handleResponse(res)),
+      catchError(err => this.handleError(err))
     );
   }
 }

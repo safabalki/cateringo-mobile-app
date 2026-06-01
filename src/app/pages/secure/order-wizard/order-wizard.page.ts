@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DataService } from '../../../services/helper/data.service';
-import { LoadingController, ToastController, ModalController } from '@ionic/angular';
+import { LoadingController, ToastController, ModalController, ActionSheetController } from '@ionic/angular';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -83,6 +83,10 @@ export class OrderWizardPage implements OnInit {
     district_id: '',
     address_text: ''
   };
+  isCityModalOpen: boolean = false;
+  isDistrictModalOpen: boolean = false;
+  filteredCities: any[] = [];
+  filteredDistricts: any[] = [];
 
   // Step 2: Menü
   products: any[] = [];
@@ -111,7 +115,8 @@ export class OrderWizardPage implements OnInit {
     private dataService: DataService,
     private loadingController: LoadingController,
     private toastController: ToastController,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private actionSheetController: ActionSheetController
   ) { }
 
   async ngOnInit() {
@@ -137,6 +142,7 @@ export class OrderWizardPage implements OnInit {
       const allCategories = allCategoriesArr || [];
       this.category = allCategories.find((c: any) => c.id == this.categoryId);
       this.cities = citiesArr || [];
+      this.filteredCities = [...this.cities];
       this.siteSettings = settingsData;
       
       if (profileData) {
@@ -161,6 +167,15 @@ export class OrderWizardPage implements OnInit {
       // Ürünlerin miktarını 0 yapalım varsayılan
       this.products.forEach(p => p.quantity = 0);
 
+      // Tarih/datetime alanlarına varsayılan bugünün tarihini ata
+      this.categoryFields.forEach(field => {
+        if (field.tip && (field.tip.includes('date') || field.tip.includes('time'))) {
+          if (!this.formData[field.name]) {
+            this.formData[field.name] = new Date().toISOString();
+          }
+        }
+      });
+
       // Eğer varsayılan bir adres varsa onu seçelim
       const defaultAddr = this.addresses.find(a => a.varsayilan == 1);
       if (defaultAddr) {
@@ -183,6 +198,7 @@ export class OrderWizardPage implements OnInit {
     } else {
       this.districts = [];
     }
+    this.filteredDistricts = [...this.districts];
     this.calculateTotal();
   }
 
@@ -214,6 +230,81 @@ export class OrderWizardPage implements OnInit {
       });
       this.deliveryData.address_text = addr.adres;
     }
+  }
+
+  getSelectedCityName(): string {
+    if (!this.deliveryData.city_id) return '';
+    const city = this.cities.find(c => c.id == this.deliveryData.city_id);
+    return city ? city.il_adi : '';
+  }
+
+  getSelectedDistrictName(): string {
+    if (!this.deliveryData.district_id) return '';
+    const dist = this.districts.find(d => d.id == this.deliveryData.district_id);
+    return dist ? dist.ilce_adi : '';
+  }
+
+  turkishToLower(str: string): string {
+    if (!str) return '';
+    return str
+      .replace(/İ/g, 'i')
+      .replace(/I/g, 'ı')
+      .replace(/Ş/g, 'ş')
+      .replace(/Ğ/g, 'ğ')
+      .replace(/Ç/g, 'ç')
+      .replace(/Ü/g, 'ü')
+      .replace(/Ö/g, 'ö')
+      .toLowerCase();
+  }
+
+  filterCities(event: any) {
+    const val = event.detail.value;
+    if (val && val.trim() !== '') {
+      const query = this.turkishToLower(val);
+      this.filteredCities = this.cities.filter(city => 
+        this.turkishToLower(city.il_adi).includes(query)
+      );
+    } else {
+      this.filteredCities = [...this.cities];
+    }
+  }
+
+  filterDistricts(event: any) {
+    const val = event.detail.value;
+    if (val && val.trim() !== '') {
+      const query = this.turkishToLower(val);
+      this.filteredDistricts = this.districts.filter(dist => 
+        this.turkishToLower(dist.ilce_adi).includes(query)
+      );
+    } else {
+      this.filteredDistricts = [...this.districts];
+    }
+  }
+
+  openCityPicker() {
+    this.filteredCities = [...this.cities];
+    this.isCityModalOpen = true;
+  }
+
+  openDistrictPicker() {
+    if (!this.deliveryData.city_id) {
+      this.presentToast('Önce bir il seçiniz.', 'warning');
+      return;
+    }
+    this.filteredDistricts = [...this.districts];
+    this.isDistrictModalOpen = true;
+  }
+
+  selectCity(city: any) {
+    this.deliveryData.city_id = city.id;
+    this.onCityChange();
+    this.isCityModalOpen = false;
+  }
+
+  selectDistrict(dist: any) {
+    this.deliveryData.district_id = dist.id;
+    this.onDistrictChange(dist.id);
+    this.isDistrictModalOpen = false;
   }
 
   nextStep() {
