@@ -8,7 +8,7 @@
 
 <ion-content>
 
-  <div class="ion-padding" style="display: flex; flex-direction: column; justify-content: flex-start; align-items: center; min-height: 100%; padding-top: 20px;">
+  <div class="ion-padding" style="display: flex; flex-direction: column; justify-content: flex-start; align-items: stretch; min-height: 100%; padding-top: 20px;">
 
     <div class="logo-container">
       <img [src]="uploadUrl + (settings?.firmaLogo || 'logo.jpg')" class="app-logo">
@@ -60,7 +60,7 @@
 
 
 
-      <ion-button class="ion-margin-top"  type="submit" expand="block" color="medium" fill="outline">
+      <ion-button class="ion-margin-top" type="button" expand="block" color="medium" fill="outline" (click)="signInWithGoogle()">
         <ion-icon slot="start" name="logo-google"></ion-icon>
         Google ile kaydol
       </ion-button>

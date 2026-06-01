@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ToastController, LoadingController } from '@ionic/angular';
 import { DataService } from 'src/app/services/helper/data.service';
 import { environment } from 'src/environments/environment';
+import { AuthService } from 'src/app/services/auth/auth.service';
 
 @Component({
   selector: 'app-password-reset',
@@ -18,7 +19,8 @@ export class PasswordResetPage implements OnInit {
   constructor(
     private toastController: ToastController,
     private loadingController: LoadingController,
-    private dataService: DataService
+    private dataService: DataService,
+    private authService: AuthService
   ) { }
 
   async ngOnInit() {
@@ -32,16 +34,28 @@ export class PasswordResetPage implements OnInit {
     }
 
     const loading = await this.loadingController.create({
-      message: 'Lütfen bekleyin...',
-      duration: 2000
+      message: 'Şifre sıfırlama isteği gönderiliyor...'
     });
     await loading.present();
 
-    setTimeout(() => {
+    try {
+      const response = await this.authService.requestPasswordReset(this.email);
+      if (response && response.status) {
+        this.presentToast(response.message || 'Geçici şifreniz e-posta adresinize gönderildi.', 'success');
+        this.email = "";
+      } else {
+        this.presentToast(response.message || 'Şifre sıfırlama başarısız oldu.', 'danger');
+      }
+    } catch (error: any) {
+      console.error('Password reset page error:', error);
+      let message = 'E-posta adresi bulunamadı veya sunucu hatası oluştu.';
+      if (error.error && error.error.message) {
+        message = error.error.message;
+      }
+      this.presentToast(message, 'danger');
+    } finally {
       loading.dismiss();
-      this.presentToast('Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.', 'success');
-      this.email = "";
-    }, 1500);
+    }
   }
 
   async presentToast(message: string, color: string = 'primary') {

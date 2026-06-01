@@ -68,6 +68,43 @@ export class AuthService {
     }
   }
 
+  // Google ile Giriş / Kayıt Yap
+  async googleSignIn(token: string, isAccessToken: boolean = true) {
+    const formData = new FormData();
+    if (isAccessToken) {
+      formData.append('access_token', token);
+    } else {
+      formData.append('id_token', token);
+    }
+
+    try {
+      const response = await firstValueFrom(this.api.postPlain('google_login', formData));
+      if (response && response.status) {
+        const authToken = response.user.token || response.user.api_token;
+        localStorage.setItem('api_token', authToken);
+        localStorage.setItem('user', JSON.stringify(response.user));
+        return response.user;
+      }
+      return false;
+    } catch (error) {
+      console.error('Google login error', error);
+      throw error;
+    }
+  }
+
+  // Şifre Sıfırlama Talebi
+  async requestPasswordReset(email: string) {
+    const formData = new FormData();
+    formData.append('email', email);
+    try {
+      const response = await firstValueFrom(this.api.postPlain('forgot_password', formData));
+      return response;
+    } catch (error) {
+      console.error('Password reset error', error);
+      throw error;
+    }
+  }
+
   // Sign out
   async signOut() {
     localStorage.removeItem('api_token');
