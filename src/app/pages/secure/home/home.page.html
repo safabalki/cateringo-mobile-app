@@ -1,98 +1,220 @@
-<ion-header collapse="fade" [translucent]="true" class="custom-header ion-no-border">
-  <ion-toolbar>
-    <div slot="start" class="ion-padding-start flex-center">
-      <img *ngIf="settings?.firmaLogo" [src]="uploadUrl + settings.firmaLogo" style="height: 32px; border-radius: 6px;" onerror="this.src='../../../assets/img/logo.jpg'">
-      <img *ngIf="!settings?.firmaLogo" src="../../../assets/img/logo.jpg" style="height: 32px; border-radius: 6px;">
+<ion-header [translucent]="true" class="custom-header ion-no-border">
+  <ion-toolbar class="header-toolbar">
+    <div class="header-logo-container">
+      <img *ngIf="settings?.mobilHeaderLogo" [src]="uploadUrl + settings.mobilHeaderLogo" class="header-logo"
+        onerror="this.src='../../../assets/img/logo.jpg'">
+      <img *ngIf="!settings?.mobilHeaderLogo" [src]="uploadUrl + (settings?.firmaLogo || 'logo.jpg')"
+        class="header-logo" onerror="this.src='../../../assets/img/logo.jpg'">
     </div>
-    <div slot="secondary" class="slot-left">
-      <div class="toolbar-location-dropdown">
-        <span class="brand-text">{{ settings?.firmaAdi || 'Cateringo' }}</span>
-      </div>
-    </div>
-    <ion-buttons slot="primary">
-    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
 
-  <div class="hero-section ion-padding-horizontal ion-padding-top">
-    <h1 class="hero-title animate__animated animate__fadeIn" [innerHTML]="settings?.mobil_ayarlar?.hero?.title || 'Her Şey Dahil,<br><span>Toplu Yemek!</span>'"></h1>
-    <p class="hero-subtitle">{{ settings?.mobil_ayarlar?.hero?.subtitle || 'Profesyonel catering yanınızda.' }}</p>
+  <!-- 1. CAMPAIGNS BANNER SLIDER -->
+  <div class="campaigns-container ion-margin-top">
+    <swiper [config]="swiper_campaigns">
+      <ng-template swiperSlide *ngFor="let slide of slides">
+        <!-- Gerçek Slayt (Resimli) -->
+        <div class="campaign-slide-card resimli-slayt" *ngIf="!slide.isMock">
+          <img [src]="uploadUrl + 'slaytlar/' + slide.slaytId + '/' + slide.slaytResim" 
+               class="slide-bg-img" 
+               onerror="this.src='../../../assets/img/logo.jpg'">
+          <div class="slide-overlay"></div>
+          <div class="slide-content">
+            <h3>{{ slide.slaytBaslik }}</h3>
+            <p>{{ slide.slaytAltBaslik }}</p>
+          </div>
+        </div>
+
+        <!-- Mock Slayt (Fallback Gradyan) -->
+        <div class="campaign-slide-card mock-slayt" *ngIf="slide.isMock" [style.background]="slide.bgGradient">
+          <div class="slide-content">
+            <h3>{{ slide.slaytBaslik }}</h3>
+            <p>{{ slide.slaytAltBaslik }}</p>
+          </div>
+          <div class="slide-icon">{{ slide.icon }}</div>
+        </div>
+      </ng-template>
+    </swiper>
   </div>
 
-  <!-- Prominent Category Grid -->
-  <div class="ion-padding-horizontal ion-margin-top">
-    <div class="section-header">
-      <h2>Hizmet Kategorileri</h2>
+  <!-- DYNAMIC CAMPAIGNS SECTION -->
+  <div class="dynamic-campaigns-section ion-margin-top" *ngIf="campaignsList && campaignsList.length > 0">
+    <div class="section-header ion-padding-horizontal">
+      <h2>Özel Kampanyalar 🌟</h2>
+      <p>Sadece mobil uygulamaya özel fırsatlar</p>
     </div>
     
-    <ion-grid class="ion-no-padding ion-margin-top-small category-grid">
-      <ion-row>
-        <ion-col size="6" *ngFor="let category of categories">
-          <ion-card class="grid-category-card" [routerLink]="['/secure/order-wizard', category.id]">
-            <div class="icon-box" [style.background-color]="getCategoryColor(category.baslik)">
-              <span class="emoji">{{ getCategoryIcon(category.baslik) }}</span>
+    <div class="campaigns-carousel-wrapper ion-margin-top-small ion-padding-start">
+      <swiper [config]="swiper_campaign_list" class="campaign-list-swiper">
+        <ng-template swiperSlide *ngFor="let campaign of campaignsList">
+          <div class="campaign-inline-card" [routerLink]="['/secure/campaign-detail', campaign.id]">
+            <div class="campaign-img-box">
+              <img [src]="uploadUrl + 'kampanyalar/' + campaign.id + '/' + campaign.resim" 
+                   onerror="this.src='../../../assets/img/logo.jpg'">
+              <div class="campaign-badge">FIRSAT</div>
             </div>
-            <ion-card-content>
-              <h3>{{ category.baslik }}</h3>
-              <p>Paketleri Gör</p>
-            </ion-card-content>
-          </ion-card>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
+            <div class="campaign-info">
+              <h4>{{ campaign.baslik }}</h4>
+              <span class="view-detail-btn">Detayı Gör <ion-icon name="arrow-forward-outline"></ion-icon></span>
+            </div>
+          </div>
+        </ng-template>
+      </swiper>
+    </div>
   </div>
-
-  <div class="ion-padding-horizontal ion-margin-top-large">
-    <div class="section-header">
-      <h2>Öne Çıkan Menü Paketleri</h2>
-      <p>Özel günleriniz için en popüler seçimler</p>
+   <!-- 2. HORIZONTAL CATEGORIES CAROUSEL -->
+  <div class="categories-section ion-margin-top-large">
+    <div class="section-header ion-padding-horizontal">
+      <h2>Hizmet Kategorileri</h2>
+      <p>Hızlıca paket oluşturmaya başlayın</p>
+    </div>
+    
+    <div class="categories-carousel-wrapper ion-margin-top-small ion-padding-start">
+      <swiper [config]="swiper_categories" class="categories-swiper">
+        <ng-template swiperSlide *ngFor="let category of categories">
+          <div class="category-circle-card" (click)="selectCategory(category)" *ngIf="category.parent_id == 0 || category.parent_id == '0'">
+            <div class="circle-image-box">
+              <img *ngIf="category.mobil_resim || category.resim" [src]="uploadUrl + 'kategoriler/' + category.id + '/' + (category.mobil_resim ? category.mobil_resim : category.resim)"
+                onerror="this.src='../../../assets/img/logo.jpg'">
+              <span *ngIf="!category.mobil_resim && !category.resim" class="emoji-placeholder">🍴</span>
+            </div>
+            <span>{{ category.baslik }}</span>
+          </div>
+        </ng-template>
+      </swiper>
     </div>
   </div>
 
-  <!-- Detailed Product Cards (Explore Style) -->
-  <div class="ion-padding-horizontal ion-margin-top-small">
-    <ion-card class="explore-product-card ion-no-margin ion-margin-bottom" *ngFor="let product of products | slice:0:10" [routerLink]="['/secure/order-wizard', product.kategori_id]" [queryParams]="{ product_id: product.id }">
-      <div class="card-image-box">
-        <img [src]="uploadUrl + 'catering_urunler/' + product.resim" onerror="this.src='https://placehold.co/400x200?text=Cateringo+Menü'">
-        <div class="card-badge" *ngIf="product.populer == '1' || product.populer == 1">
-          <ion-icon name="star"></ion-icon> Popüler Seçim
-        </div>
-        <div class="card-price-overlay">{{ product.fiyat }} TL</div>
-      </div>
-      <ion-card-content>
-        <div class="card-title-row">
-          <h3>{{ product.urun_adi }}</h3>
-          <ion-icon name="arrow-forward-circle-outline" color="primary"></ion-icon>
-        </div>
-        <p class="card-description">{{ product.aciklama || '' }}</p>
-        <div class="card-meta">
-           <ion-chip color="secondary" outline="true" *ngIf="product.min_kisi && product.min_kisi > 0">
-             <ion-icon name="people-outline"></ion-icon>
-             <ion-label>Min {{ product.min_kisi }} Kişi</ion-label>
-           </ion-chip>
-           <ion-chip color="success" outline="true" *ngIf="product.onayli == '1' || product.onayli == 1">
-             <ion-icon name="checkmark-done-circle-outline"></ion-icon>
-             <ion-label>Onaylı Lezzet</ion-label>
-           </ion-chip>
-        </div>
-      </ion-card-content>
-    </ion-card>
+  <!-- 3. PREMIUM RECOMMENDED MENUS (Öne Çıkan Menüler / Paketler) -->
+  <div class="ion-padding-horizontal ion-margin-top-large" *ngIf="featuredMenus && featuredMenus.length > 0">
+    <div class="section-header">
+      <h2>Öne Çıkan Paket Menüler</h2>
+      <p>Özel günleriniz için en popüler hazır seçimler</p>
+    </div>
   </div>
 
+  <div class="ion-padding-horizontal ion-margin-top-small" *ngIf="featuredMenus && featuredMenus.length > 0">
+    <div class="products-grid">
+      <ion-card class="alt-product-card ion-no-margin ion-margin-bottom" *ngFor="let menu of featuredMenus"
+        (click)="selectFeaturedMenu(menu)" style="cursor: pointer;">
+        <div class="product-img-box">
+          <img [src]="uploadUrl + 'onerilen_menuler/' + menu.id + '/' + menu.resim"
+            onerror="this.src='https://placehold.co/400x200?text=Cateringo+Menü'">
+          <div class="product-price-badge" *ngIf="menu.fiyat > 0">{{ menu.fiyat }} TL</div>
+          <div class="product-price-badge" *ngIf="menu.fiyat == 0 || menu.fiyat == '0.00'">Seçimlere Göre</div>
+          <div class="popular-star" *ngIf="menu.populer == '1' || menu.populer == 1">
+            <ion-icon name="star"></ion-icon>
+          </div>
+        </div>
+        <ion-card-content class="product-content">
+          <h3>{{ menu.baslik }}</h3>
+          <p class="desc">{{ menu.aciklama || 'Özel malzemelerle hazırlanmış enfes catering paket menüsü.' }}</p>
+          
+          <div class="meta-row" style="display: flex; justify-content: space-between; align-items: center;">
+            <span class="meta-item">
+              <ion-icon name="restaurant-outline"></ion-icon> {{ menu.catering_kategori_adi }}
+            </span>
+            <span class="meta-item verified" *ngIf="menu.urunler && menu.urunler.length > 0">
+              <ion-icon name="checkmark-done-circle-outline"></ion-icon> {{ menu.urunler.length }} Çeşit Yemek
+            </span>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+
+  <!-- FALLBACK: PREMIUM POPULAR PRODUCTS -->
+  <div *ngIf="!featuredMenus || featuredMenus.length === 0">
+    <div class="ion-padding-horizontal ion-margin-top-large">
+      <div class="section-header">
+        <h2>Öne Çıkan Menülerimiz</h2>
+        <p>Özel günleriniz için en popüler seçimler</p>
+      </div>
+    </div>
+
+    <div class="ion-padding-horizontal ion-margin-top-small">
+      <div class="products-grid">
+        <ion-card class="alt-product-card ion-no-margin ion-margin-bottom" *ngFor="let product of products | slice:0:10"
+          [routerLink]="['/secure/order-wizard', product.kategori_id]" [queryParams]="{ product_id: product.id }">
+          <div class="product-img-box">
+            <img [src]="uploadUrl + 'catering_urunler/' + product.resim"
+              onerror="this.src='https://placehold.co/400x200?text=Cateringo+Menü'">
+            <div class="product-price-badge">{{ product.fiyat }} TL</div>
+            <div class="popular-star" *ngIf="product.populer == '1' || product.populer == 1">
+              <ion-icon name="star"></ion-icon>
+            </div>
+          </div>
+          <ion-card-content class="product-content">
+            <h3>{{ product.urun_adi }}</h3>
+            <p class="desc">{{ product.aciklama || 'Özel malzemelerle hazırlanmış enfes catering menüsü.' }}</p>
+            
+            <div class="meta-row">
+              <span class="meta-item" *ngIf="product.min_kisi && product.min_kisi > 0">
+                <ion-icon name="people-outline"></ion-icon> Min {{ product.min_kisi }} Kişi
+              </span>
+              <span class="meta-item verified" *ngIf="product.onayli == '1' || product.onayli == 1">
+                <ion-icon name="shield-checkmark-outline"></ion-icon> Onaylı Lezzet
+              </span>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. HOW IT WORKS TIMELINE -->
   <div class="info-card-container ion-padding" *ngIf="settings?.mobil_ayarlar?.how_it_works">
-     <ion-card class="how-it-works-card">
-       <ion-card-header>
-         <ion-card-title>{{ settings.mobil_ayarlar.how_it_works.title }}</ion-card-title>
-       </ion-card-header>
-       <ion-card-content>
-         <div class="step-mini" *ngFor="let step of settings.mobil_ayarlar.how_it_works.steps; let i = index">
-           <span class="step-num">{{ i + 1 }}</span>
-           <p>{{ step }}</p>
-         </div>
-       </ion-card-content>
-     </ion-card>
+    <div class="timeline-card">
+      <h3>{{ settings.mobil_ayarlar.how_it_works.title }}</h3>
+      
+      <div class="timeline-steps">
+        <div class="timeline-step" *ngFor="let step of settings.mobil_ayarlar.how_it_works.steps; let i = index">
+          <div class="step-badge">
+            <span class="step-num">{{ i + 1 }}</span>
+            <div class="step-line" *ngIf="i < settings.mobil_ayarlar.how_it_works.steps.length - 1"></div>
+          </div>
+          <div class="step-content">
+            <p>{{ step }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
 </ion-content>
+
+<!-- BOTTOM SHEET MODAL FOR SUB-CATEGORIES -->
+<ion-modal [isOpen]="isSubCategoryModalOpen" (didDismiss)="closeSubCategoryModal()" 
+           [initialBreakpoint]="0.5" [breakpoints]="[0, 0.5, 0.75]" class="sub-category-modal">
+  <ng-template>
+    <ion-header class="ion-no-border">
+      <ion-toolbar>
+        <ion-title style="font-weight: 800; font-size: 16px;">Hizmet Tipi Seçin</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="closeSubCategoryModal()" style="font-weight: bold; color: var(--ion-color-danger);">Kapat</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="ion-padding">
+      <div class="selected-parent-info" style="margin-bottom: 20px;">
+        <h4 style="margin: 0; font-weight: 700; color: var(--ion-color-dark);">{{ selectedCategory?.baslik }}</h4>
+        <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--ion-color-medium);">Aşağıdaki hizmet tiplerinden birini seçerek ilerleyebilirsiniz.</p>
+      </div>
+      <ion-list lines="none" class="sub-category-list">
+        <ion-item button *ngFor="let sub of selectedCategory?.children" (click)="selectSubCategory(sub)"
+                  style="--background: #f8f9fa; border-radius: 12px; margin-bottom: 10px; --padding-start: 12px; cursor: pointer;">
+          <ion-avatar slot="start" style="width: 40px; height: 40px; min-width: 40px; background: #fff; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
+            <img *ngIf="sub.mobil_resim || sub.resim" [src]="uploadUrl + 'kategoriler/' + sub.id + '/' + (sub.mobil_resim ? sub.mobil_resim : sub.resim)" onerror="this.src='../../../assets/img/logo.jpg'">
+            <span *ngIf="!sub.mobil_resim && !sub.resim" style="font-size: 20px;">🍲</span>
+          </ion-avatar>
+          <ion-label style="margin-left: 10px;">
+            <h2 style="font-weight: 700; font-size: 15px; margin: 0; color: #1a1a1a;">{{ sub.baslik }}</h2>
+            <p style="font-size: 12px; margin: 2px 0 0 0; white-space: normal; color: #666;" *ngIf="sub.aciklama">{{ sub.aciklama }}</p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-content>
+  </ng-template>
+</ion-modal>

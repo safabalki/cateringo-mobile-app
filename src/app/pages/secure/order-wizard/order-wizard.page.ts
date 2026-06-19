@@ -74,6 +74,12 @@ export class OrderWizardPage implements OnInit {
   category: any;
   uploadUrl = environment.uploadUrl;
 
+  // Yeni Hiyerarşik ve Dinamik Menü Değişkenleri
+  groupedProducts: any[] = [];
+  activeGroupIndex: number = 0;
+  recommendedMenus: any[] = [];
+  selectedMenuId: any = null;
+
   // Step 1: Teslimat
   cities: any[] = [];
   districts: any[] = [];
@@ -125,6 +131,21 @@ export class OrderWizardPage implements OnInit {
     return this.sanitizer.bypassSecurityTrustHtml(this.siteSettings?.banka_bilgileri || '');
   }
 
+  getSafeVideoUrl(): any {
+    if (!this.category?.video_url) return null;
+    try {
+      let url = this.category.video_url;
+      if (url.includes('youtube.com/watch?v=')) {
+        url = url.replace('watch?v=', 'embed/');
+      } else if (url.includes('youtu.be/')) {
+        url = url.replace('youtu.be/', 'youtube.com/embed/');
+      }
+      return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    } catch {
+      return null;
+    }
+  }
+
   async ngOnInit() {
     this.categoryId = this.route.snapshot.paramMap.get('id');
     await this.loadInitialData();
@@ -138,15 +159,12 @@ export class OrderWizardPage implements OnInit {
 
     try {
       // Paralel yükleme
-      const [allCategoriesArr, citiesArr, profileData, settingsData] = await Promise.all([
-        this.dataService.getCategories(),
+      const [citiesArr, profileData, settingsData] = await Promise.all([
         this.dataService.getCities(),
         this.dataService.getProfile(),
         this.dataService.getSettings()
       ]);
 
-      const allCategories = allCategoriesArr || [];
-      this.category = allCategories.find((c: any) => c.id == this.categoryId);
       this.cities = citiesArr || [];
       this.filteredCities = [...this.cities];
       this.siteSettings = settingsData;
@@ -175,19 +193,44 @@ export class OrderWizardPage implements OnInit {
         };
       }
 
-      // Adresleri ve ürünleri de çekelim
-      this.addresses = await this.dataService.getAddresses();
-      this.products = await this.dataService.getProducts(this.categoryId);
-      const fields = await this.dataService.getCategoryFields(this.categoryId);
-      this.categoryFields = fields.map((f: any) => ({
-        ...f,
-        tip: f.tip ? f.tip.trim().toLowerCase() : 'text',
-        fiyat_etkisi: f.fiyat_etkisi || 'none',
-        carpan_turu: f.carpan_turu || 'kendi_icinde'
-      }));
+      // Adresleri çekelim
+      this.addresses = await this.dataService.getAddresses() || [];
 
-      // Ürünlerin miktarını 0 yapalım varsayılan
-      this.products.forEach(p => p.quantity = 0);
+      // Kategori alanları ve gruplanmış ürünleri çekelim
+      const categoryData = await this.dataService.getCategoryFields(this.categoryId);
+      if (categoryData && categoryData.status) {
+        this.category = categoryData.kategori;
+        this.groupedProducts = categoryData.grouped_products || [];
+        
+        // Ürün havuzunu tekil listede toplayalım (sipariş hesaplama ve kaydetme mantığı bozulmasın diye)
+        this.products = [];
+        this.groupedProducts.forEach((group: any) => {
+          if (group.urunler) {
+            group.urunler.forEach((p: any) => {
+              p.quantity = 0; // varsayılan miktar
+              this.products.push(p);
+            });
+          }
+        });
+
+        // Form alanlarını eşleyelim
+        const fields = categoryData.fields || [];
+        this.categoryFields = fields.map((f: any) => ({
+          ...f,
+          tip: f.tip ? f.tip.trim().toLowerCase() : 'text',
+          fiyat_etkisi: f.fiyat_etkisi || 'none',
+          carpan_turu: f.carpan_turu || 'kendi_icinde'
+        }));
+      }
+
+      // Bu catering kategorisine ait önerilen hazır menüleri (paketleri) çekelim
+      try {
+        this.recommendedMenus = await this.dataService.getFeaturedMenus(this.categoryId) || [];
+      } catch (recErr) {
+        console.log('Önerilen menüler yüklenemedi:', recErr);
+        this.recommendedMenus = [];
+      }
+
       this.calculateTotal();
 
       // Tarih/datetime alanlarına varsayılan bugünün tarihini ata
@@ -205,13 +248,19 @@ export class OrderWizardPage implements OnInit {
         this.onAddressSelect(defaultAddr.id);
       }
 
-      // Eğer ana sayfadan belirli bir ürün tıklanarak gelindiyse miktarını 1 yapalım
-      const targetProductId = this.route.snapshot.queryParams['product_id'];
-      if (targetProductId && this.products) {
-        const product = this.products.find(p => p.id == targetProductId);
-        if (product) {
-          product.quantity = 1;
-          this.calculateTotal();
+      // Eğer ana sayfadan veya dışarıdan önerilen menü (paket) tıklanarak gelindiyse
+      const targetMenuId = this.route.snapshot.queryParams['menu_id'];
+      if (targetMenuId) {
+        this.selectRecommendedMenuById(targetMenuId);
+      } else {
+        // Normal tekil ürün yönlendirmesi varsa (fallback)
+        const targetProductId = this.route.snapshot.queryParams['product_id'];
+        if (targetProductId && this.products) {
+          const product = this.products.find(p => p.id == targetProductId);
+          if (product) {
+            product.quantity = 1;
+            this.calculateTotal();
+          }
         }
       }
 
@@ -221,6 +270,53 @@ export class OrderWizardPage implements OnInit {
     } finally {
       loading.dismiss();
     }
+  }
+
+  selectRecommendedMenuById(menuId: any) {
+    this.selectedMenuId = menuId;
+    if (!this.recommendedMenus || this.recommendedMenus.length === 0) {
+      setTimeout(() => {
+        const menu = this.recommendedMenus.find(m => m.id == menuId);
+        if (menu) this.applyRecommendedMenu(menu);
+      }, 1000);
+      return;
+    }
+    const menu = this.recommendedMenus.find(m => m.id == menuId);
+    if (menu) {
+      this.applyRecommendedMenu(menu);
+    }
+  }
+
+  selectRecommendedMenu(menu: any) {
+    if (this.selectedMenuId == menu.id) {
+      this.selectedMenuId = null;
+      this.products.forEach(p => p.quantity = 0);
+      this.calculateTotal();
+      this.presentToast('Önerilen paket seçimi iptal edildi. Kendi menünüzü oluşturabilirsiniz.', 'warning');
+      return;
+    }
+    this.selectedMenuId = menu.id;
+    this.applyRecommendedMenu(menu);
+  }
+
+  applyRecommendedMenu(menu: any) {
+    if (menu && menu.urunler) {
+      this.products.forEach(p => p.quantity = 0);
+      menu.urunler.forEach((mu: any) => {
+        const prod = this.products.find(p => p.id == mu.id);
+        if (prod) {
+          prod.quantity = 1;
+        }
+      });
+      this.calculateTotal();
+      this.presentToast(`"${menu.baslik}" paketi uygulandı.`, 'success');
+    }
+  }
+
+  getSelectedMenuProducts(): any[] {
+    if (!this.selectedMenuId || !this.recommendedMenus) return [];
+    const menu = this.recommendedMenus.find(m => m.id == this.selectedMenuId);
+    return menu ? (menu.urunler || []) : [];
   }
 
   async onCityChange() {
@@ -357,20 +453,24 @@ export class OrderWizardPage implements OnInit {
     this.isDistrictModalOpen = false;
   }
 
+  isStep1Valid(): boolean {
+    const selected = this.products ? this.products.filter(p => p.quantity > 0) : [];
+    if (selected.length === 0) {
+      this.presentToast('Lütfen en az bir ürün seçiniz.');
+      return false;
+    }
+    for (let field of this.categoryFields) {
+       if (field.zorunlu && !this.formData[field.name]) {
+          this.presentToast(`Lütfen "${field.etiket}" alanını doldurun.`);
+          return false;
+       }
+    }
+    return true;
+  }
+
   isStepValid(step: number): boolean {
     if (step === 1) {
-      const selected = this.products ? this.products.filter(p => p.quantity > 0) : [];
-      if (selected.length === 0) {
-        this.presentToast('Lütfen en az bir ürün seçiniz.');
-        return false;
-      }
-      for (let field of this.categoryFields) {
-         if (field.zorunlu && !this.formData[field.name]) {
-            this.presentToast(`Lütfen "${field.etiket}" alanını doldurun.`);
-            return false;
-         }
-      }
-      return true;
+      return this.isStep1Valid();
     }
     
     if (step === 2) {
@@ -406,12 +506,14 @@ export class OrderWizardPage implements OnInit {
 
     if (targetStep < this.currentStep) {
       this.currentStep = targetStep;
+      if (targetStep === 1) {
+        this.activeGroupIndex = 0;
+      }
       this.calculateTotal();
       window.scrollTo(0,0);
       return;
     }
 
-    // İleriye gitmek istiyorsa, aradaki adımları sırayla doğrula
     for (let s = this.currentStep; s < targetStep; s++) {
       if (!this.isStepValid(s)) {
         return;
@@ -424,20 +526,51 @@ export class OrderWizardPage implements OnInit {
   }
 
   nextStep() {
-    if (!this.isStepValid(this.currentStep)) {
-      return;
-    }
-
-    if (this.currentStep < 4) {
-      this.currentStep++;
-      this.calculateTotal();
-      window.scrollTo(0,0);
+    if (this.currentStep === 1) {
+      if (this.activeGroupIndex < this.groupedProducts.length - 1) {
+        this.activeGroupIndex++;
+        window.scrollTo(0,0);
+      } else if (this.activeGroupIndex === this.groupedProducts.length - 1) {
+        const selected = this.products ? this.products.filter(p => p.quantity > 0) : [];
+        if (selected.length === 0) {
+          this.presentToast('Lütfen en az bir ürün seçiniz.');
+          return;
+        }
+        this.activeGroupIndex++;
+        window.scrollTo(0,0);
+      } else if (this.activeGroupIndex === this.groupedProducts.length) {
+        for (let field of this.categoryFields) {
+           if (field.zorunlu && !this.formData[field.name]) {
+              this.presentToast(`Lütfen "${field.etiket}" alanını doldurun.`);
+              return;
+           }
+        }
+        this.currentStep = 2;
+        window.scrollTo(0,0);
+      }
+    } else {
+      if (!this.isStepValid(this.currentStep)) {
+        return;
+      }
+      if (this.currentStep < 4) {
+        this.currentStep++;
+        this.calculateTotal();
+        window.scrollTo(0,0);
+      }
     }
   }
 
   prevStep() {
-    if (this.currentStep > 1) {
+    if (this.currentStep === 1) {
+      if (this.activeGroupIndex > 0) {
+        this.activeGroupIndex--;
+        window.scrollTo(0,0);
+      }
+    } else {
       this.currentStep--;
+      if (this.currentStep === 1) {
+        this.activeGroupIndex = this.groupedProducts.length;
+      }
       this.calculateTotal();
       window.scrollTo(0,0);
     }

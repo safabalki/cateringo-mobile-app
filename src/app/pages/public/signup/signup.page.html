@@ -32,7 +32,7 @@
 
         <ion-item class="ion-margin-top-small">
           <ion-label color="medium" position="stacked">Telefon</ion-label>
-          <ion-input formControlName="telefon" type="tel" placeholder="Telefon numaranız"></ion-input>
+          <ion-input formControlName="telefon" type="tel" placeholder="05XX XXX XX XX" maxlength="14" (ionInput)="formatPhone($event)"></ion-input>
         </ion-item>
 
         <ion-item class="ion-margin-top-small">

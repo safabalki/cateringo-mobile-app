@@ -1,253 +1,475 @@
 .custom-header {
   --background: #ffffff;
-  ion-toolbar {
+  
+  .header-toolbar {
     --background: #ffffff;
     --border-style: none;
-    .brand-text {
-      font-weight: 800;
-      font-size: 1.2rem;
-      color: var(--ion-color-primary);
-      letter-spacing: -0.5px;
-    }
-  }
-}
-
-.hero-section {
-  padding-top: 20px;
-  padding-bottom: 24px;
-  background: white;
-  
-  .hero-title {
-    font-size: 1.7rem;
-    font-weight: 800;
-    line-height: 1.2;
-    color: #1a1a1a;
-    margin-bottom: 8px;
+    --padding-top: 6px;
+    --padding-bottom: 6px;
     
-    span {
-      color: var(--ion-color-primary);
+    .header-logo-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 48px;
+      padding: 8px 0;
+
+      .header-logo {
+        height: 32px;
+        object-fit: contain;
+        border-radius: 6px;
+      }
     }
-  }
-  
-  .hero-subtitle {
-    font-size: 0.9rem;
-    color: #666;
-    line-height: 1.4;
-    max-width: 95%;
   }
 }
 
+/* 1. CAMPAIGNS BANNER SLIDER */
+.campaigns-container {
+  padding-bottom: 8px;
+  
+  .campaign-slide-card {
+    position: relative;
+    height: 140px;
+    border-radius: 20px;
+    padding: 20px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    overflow: hidden;
+
+    &.resimli-slayt {
+      background-color: #000000;
+      
+      .slide-bg-img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 1;
+      }
+
+      .slide-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.45) 50%, rgba(0,0,0,0.8) 100%);
+        z-index: 2;
+      }
+
+      .slide-content {
+        position: relative;
+        z-index: 3;
+        margin-top: 15px;
+        
+        h3 {
+          text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+        
+        p {
+          text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+        }
+      }
+    }
+
+    &.mock-slayt {
+      .slide-content {
+        position: relative;
+        z-index: 3;
+      }
+    }
+
+    .slide-badge {
+      position: absolute;
+      top: 14px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(4px);
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      z-index: 4;
+    }
+
+    .slide-content {
+      margin-top: 10px;
+      max-width: 85%;
+      
+      h3 {
+        margin: 0 0 4px 0;
+        font-size: 1.2rem;
+        font-weight: 800;
+        letter-spacing: -0.3px;
+        line-height: 1.25;
+        color: #ffffff !important;
+      }
+
+      p {
+        margin: 0;
+        font-size: 0.78rem;
+        color: rgba(255, 255, 255, 0.95) !important;
+        font-weight: 500;
+      }
+    }
+
+    .slide-icon {
+      position: absolute;
+      right: 15px;
+      bottom: -15px;
+      font-size: 5.5rem;
+      opacity: 0.15;
+      z-index: 1;
+    }
+  }
+}
+
+/* 2. HORIZONTAL CATEGORIES CAROUSEL */
 .section-header {
-  margin: 10px 0 12px 0;
+  margin: 10px 0 6px 0;
   h2 {
-    font-size: 1.35rem;
+    font-size: 1.25rem;
     font-weight: 800;
     margin: 0;
     color: #1a1a1a;
     letter-spacing: -0.3px;
   }
   p {
-    margin: 4px 0 0 0;
-    font-size: 0.85rem;
+    margin: 3px 0 0 0;
+    font-size: 0.8rem;
     color: #888;
   }
 }
 
-/* Prominent Category Grid */
-.category-grid {
-  margin-left: -4px;
-  margin-right: -4px;
+.categories-carousel-wrapper {
+  overflow: hidden;
+  
+  .categories-swiper {
+    padding-bottom: 12px;
+  }
+
+  .category-circle-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    
+    &:active {
+      .circle-image-box {
+        transform: scale(0.92);
+      }
+    }
+
+    .circle-image-box {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background-color: #f7f9fc;
+      border: 2px solid #ffffff;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      margin-bottom: 8px;
+      transition: transform 0.2s ease;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .emoji-placeholder {
+        font-size: 1.8rem;
+      }
+    }
+
+    span {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #333;
+      max-width: 80px;
+      line-height: 1.2;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
 }
 
-.grid-category-card {
-  --background: #ffffff;
-  border-radius: 20px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.03);
-  border: 1px solid #f2f2f2;
-  margin: 6px;
-  padding: 12px;
+/* 3. PREMIUM POPULAR PRODUCTS */
+.products-grid {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  transition: all 0.3s ease;
-
-  &:active {
-    transform: scale(0.95);
-    background: #fdfdfd;
-  }
-
-  .icon-box {
-    width: 58px;
-    height: 58px;
-    border-radius: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-    margin-bottom: 10px;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.06);
-
-    .emoji {
-      font-size: 1.8rem;
-    }
-  }
-
-  ion-card-content {
-    padding: 0;
-    h3 {
-      font-size: 0.95rem;
-      font-weight: 800;
-      color: #1a1a1a;
-      margin: 0 0 2px 0;
-      letter-spacing: -0.3px;
-    }
-    p {
-      font-size: 0.75rem;
-      color: var(--ion-color-primary);
-      font-weight: 700;
-      margin: 0;
-    }
-  }
+  gap: 16px;
 }
 
-/* Explore Style Cards */
-.explore-product-card {
+.alt-product-card {
   --background: #ffffff;
-  border-radius: 24px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.04);
-  border: 1px solid #f0f0f0;
+  border-radius: 20px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.03);
+  border: 1px solid #f3f4f6;
   overflow: hidden;
+  transition: transform 0.2s ease;
 
-  .card-image-box {
+  &:active {
+    transform: scale(0.98);
+  }
+
+  .product-img-box {
     position: relative;
-    height: 190px;
-    
+    height: 160px;
+    width: 100%;
+
     img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
 
-    .card-badge {
+    .product-price-badge {
       position: absolute;
-      top: 16px;
+      bottom: 12px;
       left: 16px;
-      background: rgba(255,255,255,0.95);
-      padding: 6px 12px;
-      border-radius: 100px;
-      font-size: 0.75rem;
+      background: #1a1a1a;
+      color: #ffffff;
+      padding: 6px 14px;
+      border-radius: 12px;
+      font-size: 0.9rem;
       font-weight: 800;
-      color: #1a1a1a;
-      display: flex;
-      align-items: center;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      backdrop-filter: blur(4px);
-
-      ion-icon {
-        color: #ffc107;
-        margin-right: 4px;
-        font-size: 1rem;
-      }
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     }
 
-    .card-price-overlay {
+    .popular-star {
       position: absolute;
-      bottom: 16px;
+      top: 12px;
       right: 16px;
-      background: var(--ion-color-primary);
-      color: white;
-      padding: 8px 16px;
-      border-radius: 14px;
-      font-weight: 800;
-      font-size: 1rem;
-      box-shadow: 0 6px 15px rgba(var(--ion-color-primary-rgb), 0.3);
+      background: #ffc107;
+      color: #1a1a1a;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+
+      ion-icon {
+        font-size: 0.95rem;
+      }
     }
   }
 
-  ion-card-content {
-    padding: 20px;
+  .product-content {
+    padding: 16px;
 
-    .card-title-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-
-      h3 {
-        margin: 0;
-        font-size: 1.25rem;
-        font-weight: 800;
-        color: #1a1a1a;
-        letter-spacing: -0.3px;
-      }
-      ion-icon {
-        font-size: 1.6rem;
-      }
+    h3 {
+      margin: 0 0 6px 0;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #1a1a1a;
+      letter-spacing: -0.3px;
     }
 
-    .card-description {
-      font-size: 0.9rem;
-      color: #777;
+    .desc {
+      margin: 0 0 12px 0;
+      font-size: 0.82rem;
+      color: #6b7280;
       line-height: 1.4;
-      margin: 0 0 16px 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
-    .card-meta {
+    .meta-row {
       display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
 
-      ion-chip {
-        margin: 0;
-        height: 28px;
-        --background: transparent;
+      .meta-item {
         font-size: 0.75rem;
         font-weight: 700;
-        border-width: 1.5px;
+        color: #4b5563;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+
+        ion-icon {
+          font-size: 0.9rem;
+        }
+
+        &.verified {
+          color: #10b981;
+        }
       }
     }
   }
 }
 
-.how-it-works-card {
+/* 4. HOW IT WORKS TIMELINE */
+.timeline-card {
   background: #fdf2f2;
-  border-radius: 24px;
   border: 1px solid #fee2e2;
-  box-shadow: none;
-  margin-top: 20px;
-  
-  ion-card-title {
+  border-radius: 20px;
+  padding: 20px;
+  margin-top: 10px;
+
+  h3 {
+    margin: 0 0 16px 0;
+    font-size: 1.05rem;
     font-weight: 800;
-    font-size: 1.15rem;
     color: #1a1a1a;
   }
-  
-  .step-mini {
+
+  .timeline-steps {
     display: flex;
-    align-items: center;
-    margin-bottom: 14px;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .timeline-step {
+    display: flex;
+    align-items: flex-start;
     
-    .step-num {
-      width: 26px;
-      height: 26px;
-      background: var(--ion-color-primary);
-      color: white;
-      border-radius: 50%;
+    .step-badge {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 0.85rem;
-      margin-right: 14px;
+      width: 24px;
+      margin-right: 16px;
       flex-shrink: 0;
+
+      .step-num {
+        width: 22px;
+        height: 22px;
+        background: var(--ion-color-primary);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 0.78rem;
+      }
+
+      .step-line {
+        width: 2px;
+        height: 34px;
+        background: #fca5a5;
+        margin: 4px 0;
+      }
     }
+
+    .step-content {
+      padding-top: 2px;
+      padding-bottom: 14px;
+      
+      p {
+        margin: 0;
+        font-size: 0.88rem;
+        color: #374151;
+        font-weight: 600;
+        line-height: 1.3;
+      }
+    }
+  }
+}
+
+/* DYNAMIC CAMPAIGNS SECTION */
+.dynamic-campaigns-section {
+  .campaigns-carousel-wrapper {
+    overflow: hidden;
     
-    p {
-      margin: 0;
-      font-size: 0.95rem;
-      color: #333;
-      font-weight: 600;
+    .campaign-list-swiper {
+      padding-bottom: 12px;
+    }
+  }
+
+  .campaign-inline-card {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f3f4f6;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 195px;
+    transition: transform 0.2s ease;
+
+    &:active {
+      transform: scale(0.97);
+    }
+
+    .campaign-img-box {
+      position: relative;
+      height: 115px;
+      width: 100%;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .campaign-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: #dc2626;
+        color: #ffffff;
+        font-size: 0.65rem;
+        font-weight: 800;
+        padding: 3px 8px;
+        border-radius: 6px;
+        letter-spacing: 0.5px;
+      }
+    }
+
+    .campaign-info {
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex-grow: 1;
+
+      h4 {
+        margin: 0 0 4px 0;
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: #1a1a1a;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .view-detail-btn {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #dc2626;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+
+        ion-icon {
+          font-size: 0.85rem;
+        }
+      }
     }
   }
 }

@@ -40,8 +40,8 @@ export class SigninPage implements OnInit {
     });
 
     // DEBUG: Prefill inputs - settings gelmeden önce yapabiliriz
-    this.signin_form.get('email').setValue('info@cateringo.com');
-    this.signin_form.get('password').setValue('123456');
+    this.signin_form.get('email').setValue('info@cateringo.net');
+    this.signin_form.get('password').setValue('102030');
 
     // Load settings after form is ready to avoid template errors
     this.settings = await this.dataService.getSettings();

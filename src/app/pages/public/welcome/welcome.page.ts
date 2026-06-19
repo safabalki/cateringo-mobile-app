@@ -27,7 +27,7 @@ export class WelcomePage implements AfterContentChecked {
     slidesPerView: 1,
     spaceBetween: 50,
     pagination: { clickable: false },
-    allowTouchMove: false // set true to allow swiping
+    allowTouchMove: true // set true to allow swiping
   }
 
   constructor(
@@ -49,7 +49,11 @@ export class WelcomePage implements AfterContentChecked {
 
   // Trigger swiper slide change
   swiperSlideChanged(e) {
-    // console.log(e);
+    const swiperInstance = Array.isArray(e) ? e[0] : e;
+    if (swiperInstance) {
+      this.last_slide = swiperInstance.isEnd;
+      this.ref.detectChanges();
+    }
   }
 
   // Go to next slide
@@ -60,6 +64,7 @@ export class WelcomePage implements AfterContentChecked {
   // Last slide trigger
   onLastSlide() {
     this.last_slide = true;
+    this.ref.detectChanges();
   }
 
   // Go to main content

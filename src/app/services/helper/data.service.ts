@@ -31,7 +31,14 @@ export class DataService {
   // Category Fields (for order form)
   async getCategoryFields(categoryId: number) {
     const res: any = await firstValueFrom(this.api.get('category_fields/' + categoryId));
-    return res?.fields;
+    return res; // Returns full response containing fields, grouped_products and kategori info
+  }
+
+  // Recommended/Featured Menus
+  async getFeaturedMenus(categoryId?: number) {
+    const params = categoryId ? { category_id: categoryId } : {};
+    const res: any = await firstValueFrom(this.api.get('featured_menus', params));
+    return res?.featured_menus;
   }
 
   // Addresses
@@ -85,5 +92,22 @@ export class DataService {
   async updateProfile(profileData: any) {
     const res: any = await firstValueFrom(this.api.post('profile', profileData));
     return res;
+  }
+
+  // Slides
+  async getSlides() {
+    const res: any = await firstValueFrom(this.api.get('slides'));
+    return res?.slides;
+  }
+
+  // Campaigns
+  async getCampaigns() {
+    const res: any = await firstValueFrom(this.api.get('campaigns'));
+    return res?.campaigns;
+  }
+
+  async getCampaignDetail(id: number) {
+    const res: any = await firstValueFrom(this.api.get('campaign_detail/' + id));
+    return res?.campaign;
   }
 }

@@ -1,0 +1,33 @@
+<ion-header [translucent]="true" class="custom-header ion-no-border">
+  <ion-toolbar class="header-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/secure/home" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>Kampanya Detayı</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="campaign-detail-container" *ngIf="campaign">
+    <!-- Kampanya Görseli -->
+    <div class="img-box ion-margin-bottom">
+      <img [src]="uploadUrl + 'kampanyalar/' + campaign.id + '/' + campaign.resim" 
+           onerror="this.src='../../../assets/img/logo.jpg'">
+      <div class="campaign-badge">FIRSAT</div>
+    </div>
+    
+    <!-- Kampanya İçeriği -->
+    <div class="content-box">
+      <h1 class="campaign-title">{{ campaign.baslik }}</h1>
+      <div class="title-divider"></div>
+      
+      <!-- CKEditor/TinyMCE HTML İçerik -->
+      <div class="campaign-html-content" [innerHTML]="campaign.icerik || 'Kampanya açıklaması bulunmuyor.'"></div>
+    </div>
+  </div>
+
+  <div class="no-campaign-found ion-text-center ion-padding" *ngIf="!campaign">
+    <p>Kampanya bilgisi yükleniyor...</p>
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
+</ion-content>

@@ -37,7 +37,11 @@ const routes: Routes = [
   {
     path: 'addresses',
     loadChildren: () => import('./addresses/addresses.module').then( m => m.AddressesPageModule)
+  },  {
+    path: 'campaign-detail/:id',
+    loadChildren: () => import('./campaign-detail/campaign-detail.module').then( m => m.CampaignDetailPageModule)
   }
+
 ];
 
 @NgModule({

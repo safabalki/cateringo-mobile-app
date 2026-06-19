@@ -37,7 +37,10 @@ export class SignupPage implements OnInit {
     this.signup_form = this.formBuilder.group({
       ad_soyad: ['', Validators.compose([Validators.required])],
       email: ['', Validators.compose([Validators.email, Validators.required])],
-      telefon: ['', Validators.compose([Validators.required])],
+      telefon: ['', Validators.compose([
+        Validators.required,
+        Validators.pattern(/^(05[0-9]{2}\s[0-9]{3}\s[0-9]{2}\s[0-9]{2})$/)
+      ])],
       password: ['', Validators.compose([Validators.minLength(6), Validators.required])],
       password_repeat: ['', Validators.compose([Validators.minLength(6), Validators.required])]
     });
@@ -45,18 +48,51 @@ export class SignupPage implements OnInit {
     this.settings = await this.dataService.getSettings();
   }
 
+  formatPhone(event: any) {
+    let val = event.target.value.replace(/\D/g, '');
+    if (val.length > 11) {
+      val = val.substring(0, 11);
+    }
+    
+    let formatted = '';
+    if (val.length > 0) {
+      if (!val.startsWith('0')) {
+        val = '0' + val;
+      }
+      formatted = val.substring(0, 4);
+      if (val.length > 4) {
+        formatted += ' ' + val.substring(4, 7);
+      }
+      if (val.length > 7) {
+        formatted += ' ' + val.substring(7, 9);
+      }
+      if (val.length > 9) {
+        formatted += ' ' + val.substring(9, 11);
+      }
+    }
+    
+    event.target.value = formatted;
+    this.signup_form.get('telefon').setValue(formatted, { emitEvent: false });
+  }
+
   // Sign up
   async signUp() {
 
     this.submit_attempt = true;
 
-    // If any field is empty
-    const { ad_soyad, email, telefon, password, password_repeat } = this.signup_form.value;
-    if (!ad_soyad || !email || !telefon || !password || !password_repeat) {
-      this.toastService.presentToast('Hata', 'Lütfen tüm alanları doldurun', 'top', 'danger', 4000);
+    if (this.signup_form.invalid) {
+      if (this.signup_form.get('email').hasError('email')) {
+        this.toastService.presentToast('Hata', 'Geçerli bir e-posta adresi giriniz.', 'top', 'danger', 4000);
+      } else if (this.signup_form.get('telefon').hasError('pattern')) {
+        this.toastService.presentToast('Hata', 'Telefon formatı hatalı (Örn: 05xx xxx xx xx).', 'top', 'danger', 4000);
+      } else {
+        this.toastService.presentToast('Hata', 'Lütfen form alanlarını kontrol ediniz.', 'top', 'danger', 4000);
+      }
+      return;
+    }
 
-      // If passwords do not match
-    } else if (password != password_repeat) {
+    const { ad_soyad, email, telefon, password, password_repeat } = this.signup_form.value;
+    if (password != password_repeat) {
       this.toastService.presentToast('Hata', 'Şifreler uyuşmuyor', 'top', 'danger', 4000);
 
     } else {

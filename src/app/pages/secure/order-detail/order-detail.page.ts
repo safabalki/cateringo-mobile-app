@@ -26,17 +26,24 @@ export class OrderDetailPage implements OnInit {
   async loadOrderDetail() {
     try {
       this.order = await this.dataService.getOrderDetail(this.orderId);
-      if (this.order && this.order.details) {
-         // Hesaplama hatasını önlemek için detaylardaki fiyatları kendimiz de toplayalım.
-         const calculatedSum = this.sumTotal(this.order.details);
-         // API'den gelen toplam 0 ise veya detayların toplamı daha yüksekse (teslimat dahil değilse vb.) düzeltelim.
-         if (this.order.order && (Number(this.order.order.toplam_tutar) === 0 || Number(this.order.order.toplam_tutar) < calculatedSum)) {
+      if (this.order) {
+        if (this.order.order && this.order.order.created_at) {
+          // MySQL tarih formatını (YYYY-MM-DD HH:MM:SS) iOS/Safari uyumlu ISO formatına (YYYY-MM-DDTHH:MM:SS) dönüştürüyoruz.
+          this.order.order.created_at = this.order.order.created_at.replace(' ', 'T');
+        }
+        if (this.order.details) {
+          // Hesaplama hatasını önlemek için detaylardaki fiyatları kendimiz de toplayalım.
+          const calculatedSum = this.sumTotal(this.order.details);
+          // API'den gelen toplam 0 ise veya detayların toplamı daha yüksekse (teslimat dahil değilse vb.) düzeltelim.
+          if (this.order.order && (Number(this.order.order.toplam_tutar) === 0 || Number(this.order.order.toplam_tutar) < calculatedSum)) {
             this.order.order.toplam_tutar = calculatedSum.toString();
-         }
+          }
+        }
       }
-      this.content_loaded = true;
     } catch (error) {
       console.error('Sipariş detayı yüklenirken hata:', error);
+    } finally {
+      this.content_loaded = true;
     }
   }
 

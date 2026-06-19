@@ -1,8 +1,11 @@
 <ion-header [translucent]="true" class="ion-no-border">
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-back-button *ngIf="currentStep === 1" defaultHref="/secure/home" text="Geri" color="light"></ion-back-button>
-      <ion-button *ngIf="currentStep > 1" (click)="prevStep()" color="light">
+      <!-- Anasayfaya gitme: Sadece Step 1 ve ilk alt adımda aktifse -->
+      <ion-back-button *ngIf="currentStep === 1 && activeGroupIndex === 0" defaultHref="/secure/home" text="Geri" color="light"></ion-back-button>
+      
+      <!-- Önceki adım / Alt adıma gitme: Diğer durumlarda -->
+      <ion-button *ngIf="currentStep > 1 || (currentStep === 1 && activeGroupIndex > 0)" (click)="prevStep()" color="light" style="--color: white;">
         <ion-icon slot="start" name="chevron-back"></ion-icon>
         Geri
       </ion-button>
@@ -38,15 +41,91 @@
 
     <!-- STEP 1: MENÜ & DETAY -->
     <div *ngSwitchCase="1" class="step-content animate__animated animate__fadeIn">
-      <div class="section-card">
-        <h3 class="section-title">Menü Seçimi</h3>
+      
+      <!-- Kategori Tanıtım Alanı (Resim, Açıklama, Video) -->
+      <div class="category-promo-card section-card ion-no-padding ion-margin-bottom" *ngIf="category && activeGroupIndex === 0">
+        <div class="promo-image-wrapper" *ngIf="(category.mobil_resim && category.mobil_resim.trim() !== '') || (category.resim && category.resim.trim() !== '')">
+          <img [src]="uploadUrl + 'kategoriler/' + category.id + '/' + (category.mobil_resim || category.resim)" class="promo-img" onerror="this.src='../../../assets/img/logo.jpg'">
+          <div class="promo-overlay"></div>
+          <div class="promo-title-badge">{{ category.baslik }}</div>
+        </div>
+        <div class="promo-content ion-padding">
+          <p class="promo-desc" *ngIf="category.aciklama">{{ category.aciklama }}</p>
+          
+          <!-- Tanıtım Videosu (Iframe / Youtube Embed) -->
+          <div class="promo-video-wrapper ion-margin-top" *ngIf="category.video_url">
+            <iframe [src]="getSafeVideoUrl()" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="promo-iframe"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <!-- Yemek Grubu Adımları Segment (Yalnızca ürün grupları varken göster) -->
+      <div class="sub-step-indicator ion-margin-bottom" *ngIf="groupedProducts.length > 0">
+        <div class="sub-step-track">
+          <div class="sub-step-dot" *ngFor="let group of groupedProducts; let idx = index" 
+               [class.active]="activeGroupIndex === idx" [class.done]="activeGroupIndex > idx"
+               (click)="activeGroupIndex = idx">
+            <span class="dot-val">{{ idx + 1 }}</span>
+          </div>
+          <!-- Form/Detay Adımı -->
+          <div class="sub-step-dot" [class.active]="activeGroupIndex === groupedProducts.length"
+               [class.done]="activeGroupIndex > groupedProducts.length"
+               (click)="isStep1Valid() ? activeGroupIndex = groupedProducts.length : null">
+            <span class="dot-val"><ion-icon name="document-text-outline" style="font-size: 16px;"></ion-icon></span>
+          </div>
+        </div>
+        
+        <!-- Aktif Aşama Bilgisi -->
+        <div class="active-step-title-bar ion-text-center">
+          <span class="active-step-badge">
+            {{ activeGroupIndex === groupedProducts.length ? 'Etkinlik Detayları' : groupedProducts[activeGroupIndex]?.kategori_adi }}
+          </span>
+        </div>
+      </div>
+
+      <!-- DİNAMİK YEMEK GRUPLARI LİSTESİ -->
+      <div class="section-card" *ngFor="let group of groupedProducts; let idx = index" [hidden]="activeGroupIndex !== idx">
+        <h3 class="section-title">{{ group.kategori_adi }} Seçimi</h3>
+        
+        <!-- Önerilen Menüler / Paketler (Sadece ilk adımda üstte gösterilir) -->
+        <div class="recommended-menus-box ion-margin-bottom" *ngIf="idx === 0 && recommendedMenus && recommendedMenus.length > 0">
+          <p class="box-subtitle">Dilerseniz hazır menü paketlerimizden seçebilirsiniz:</p>
+          <div class="rec-menus-scroll">
+            <div class="rec-menu-chip" *ngFor="let rMenu of recommendedMenus" 
+                 [class.selected]="selectedMenuId == rMenu.id" (click)="selectRecommendedMenu(rMenu)">
+              <div class="chip-img-box" *ngIf="rMenu.resim">
+                <img [src]="uploadUrl + 'onerilen_menuler/' + rMenu.id + '/' + rMenu.resim" onerror="this.src='https://placehold.co/100?text=Menü'">
+              </div>
+              <div class="chip-info">
+                <span class="title">{{ rMenu.baslik }}</span>
+                <span class="price" *ngIf="rMenu.fiyat > 0">{{ rMenu.fiyat }} TL</span>
+                <span class="price" *ngIf="rMenu.fiyat == 0 || rMenu.fiyat == '0.00'">Seçimlere Göre</span>
+              </div>
+              <ion-icon name="checkmark-circle" class="check-icon" *ngIf="selectedMenuId == rMenu.id"></ion-icon>
+            </div>
+          </div>
+
+          <!-- Seçili Paket İçeriği -->
+          <div class="selected-menu-contents ion-margin-top ion-padding animate__animated animate__fadeIn" *ngIf="idx === 0 && selectedMenuId" style="background: #fdfdfd; border-radius: 12px; border: 1px dashed var(--ion-color-primary); padding: 12px; margin-top: 12px;">
+            <p style="font-size: 0.85rem; font-weight: 700; color: var(--ion-color-primary); margin: 0 0 8px 0; display: flex; align-items: center; gap: 4px;">
+              <ion-icon name="information-circle-outline" style="font-size: 16px;"></ion-icon> Paket İçeriği:
+            </p>
+            <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+              <span *ngFor="let mu of getSelectedMenuProducts()" style="background: rgba(var(--ion-color-primary-rgb), 0.08); color: var(--ion-color-primary); font-size: 0.75rem; padding: 5px 12px; border-radius: 20px; font-weight: 600; border: 1px solid rgba(var(--ion-color-primary-rgb), 0.15);">
+                {{ mu.urun_adi }}
+              </span>
+            </div>
+          </div>
+        </div>
+
         <ion-list lines="none" class="product-selection-list">
-          <ion-item *ngFor="let product of products" class="product-item">
+          <ion-item *ngFor="let product of group.urunler" class="product-item">
             <ion-thumbnail slot="start" class="product-thumb">
               <img [src]="uploadUrl + (product.resim ? 'catering_urunler/' + product.resim : 'logo.jpg')" onerror="this.src='https://placehold.co/100?text=Menü'">
             </ion-thumbnail>
             <ion-label>
               <h2 class="product-name">{{ product.urun_adi }}</h2>
+              <p class="product-desc" *ngIf="product.aciklama" style="font-size: 11px; color: #888; margin: 3px 0; white-space: normal;">{{ product.aciklama }}</p>
               <p class="product-price">{{ product.fiyat }} TL</p>
             </ion-label>
             <div slot="end" class="qty-selector">
@@ -59,10 +138,14 @@
               </ion-button>
             </div>
           </ion-item>
+          <div *ngIf="!group.urunler || group.urunler.length === 0" class="ion-padding ion-text-center">
+            <p style="color: #888;">Bu grupta ürün bulunmamaktadır.</p>
+          </div>
         </ion-list>
       </div>
 
-      <div class="section-card ion-margin-top" *ngIf="categoryFields.length > 0">
+      <!-- FORM ALANLARI / ETKİNLİK DETAYLARI (YALNIZCA SON ALT ADIMDA GÖSTERİLİR) -->
+      <div class="section-card" [hidden]="activeGroupIndex !== groupedProducts.length" *ngIf="categoryFields.length > 0">
         <h3 class="section-title">Etkinlik Detayları</h3>
         <ion-list lines="none" class="form-list">
           <div *ngFor="let field of categoryFields" class="field-wrapper">
@@ -111,6 +194,7 @@
           </div>
         </ion-list>
       </div>
+
     </div>
 
     <!-- STEP 2: TESLİMAT & İLETİŞİM -->
@@ -321,7 +405,14 @@
   <ion-toolbar class="ion-padding-horizontal">
     <div class="wizard-footer-flex">
       <ion-button (click)="nextStep()" fill="solid" class="btn-footer-next-full" *ngIf="currentStep < 4">
-        DEVAM ET 
+        <ng-container *ngIf="currentStep === 1">
+          <span *ngIf="activeGroupIndex < groupedProducts.length - 1">SONRAKİ GRUP</span>
+          <span *ngIf="activeGroupIndex === groupedProducts.length - 1">DETAYLARA GEÇ</span>
+          <span *ngIf="activeGroupIndex === groupedProducts.length">TESLİMAT BİLGİLERİNE GEÇ</span>
+        </ng-container>
+        <ng-container *ngIf="currentStep === 2">ÖDEMEYE GEÇ</ng-container>
+        <ng-container *ngIf="currentStep === 3">ÖZETE GEÇ</ng-container>
+        
         <ng-container *ngIf="totalPrice > 0 && (currentStep === 1 || currentStep === 3)">
           | {{ totalPrice | number:'1.2-2' }} TL
         </ng-container>
@@ -338,4 +429,3 @@
     </div>
   </ion-toolbar>
 </ion-footer>
-
